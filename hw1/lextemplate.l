@@ -44,6 +44,8 @@ identifier  ({letter})({letter}|{digit})*
 %x PRAGMA_TOK
 %x PRAGMA_STA
 %x PRAGMA_AFTER
+%x PRAGMA_COMMENT_M
+%x PRAGMA_AFTER_COMMENT
 %%
 ","   { tokenString("delim", ","); }
 ";"   { tokenString("delim", ";"); }
@@ -178,6 +180,7 @@ identifier  ({letter})({letter}|{digit})*
 <PRAGMA>"token"		{ LIST; BEGIN PRAGMA_TOK; }
 <PRAGMA>"statistic"	{ LIST; BEGIN PRAGMA_STA; }
 <PRAGMA>{whitespace}	{ LIST; }
+<PRAGMA>.		{ error(); }
 
 <PRAGMA_SOU>[ \t]*"on"	{
 			 LIST;
@@ -189,6 +192,8 @@ identifier  ({letter})({letter}|{digit})*
 			 Opt_Source = 0;
 		 	BEGIN PRAGMA_AFTER;
 			}
+<PRAGMA_SOU>.		{ error(); }
+
 <PRAGMA_TOK>[ \t]*"on"	{
 			 LIST;
 			 Opt_Token = 1;		
@@ -199,6 +204,8 @@ identifier  ({letter})({letter}|{digit})*
 			 Opt_Token = 0;
 			 BEGIN PRAGMA_AFTER;
 			}
+<PRAGMA_TOK>.		{ error(); }
+
 <PRAGMA_STA>[ \t]*"on"	{ 
 			LIST;
 			Opt_Statistic = 1;
@@ -209,16 +216,50 @@ identifier  ({letter})({letter}|{digit})*
 			 Opt_Statistic = 0;	
 			 BEGIN PRAGMA_AFTER;
 			}
+<PRAGMA_STA>.		{ error(); }
 
 <PRAGMA_AFTER>{whitespace}	{ LIST; }
 <PRAGMA_AFTER>"/*"	{ 
 			  LIST; 
-			  BEGIN COMMENT_MUL;
+			  BEGIN PRAGMA_COMMENT_M; //COMMENT_MUL;
 			}
+
+
+
+
+<PRAGMA_COMMENT_M>"*/"  {
+                         LIST;
+                         BEGIN PRAGMA_AFTER_COMMENT;//if same line with #pragma, after comment still can not have anything
+                        }
+
+<PRAGMA_COMMENT_M>"\n"	{
+			 LIST;
+			 if (Opt_Source) printf("%d:%s\n", linenum, buf);
+			 ++linenum;
+       			 buf[0] = '\0';
+			 BEGIN COMMENT_MUL;
+                        }
+
+<PRAGMA_COMMENT_M>.     { LIST; }
+
+<PRAGMA_AFTER_COMMENT>{whitespace}	{LIST;}
+
+<PRAGMA_AFTER_COMMENT>"\n"	{
+			 	LIST;
+			 	if (Opt_Source) printf("%d:%s\n", linenum, buf);
+				 ++linenum;
+       			 	buf[0] = '\0';
+			 	BEGIN INITIAL;
+				}
+
+<PRAGMA_AFTER_COMMENT>.	{error();}
+
 <PRAGMA_AFTER>"//"	{ 
 			  LIST; 
 			  BEGIN COMMENT_ONE;
 			}
+
+
 <PRAGMA_AFTER>"\n"	{ 
 			 LIST;
         		 if (Opt_Source) printf("%d:%s\n", linenum, buf);
@@ -226,6 +267,7 @@ identifier  ({letter})({letter}|{digit})*
         		 buf[0] = '\0';
 			 BEGIN INITIAL;
 			}
+<PRAGMA_AFTER>.		{ error(); }
 
 {whitespace}		{ LIST;}
 

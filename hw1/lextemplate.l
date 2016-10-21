@@ -21,7 +21,9 @@ struct id_entity{
 int id_count = 0; //the number of existing identifier
 int id_search(char* newid);//function 
 
-void set_pragma(char* pragma);
+void set_pragma(int type);
+
+void error();
 
 %}
 
@@ -40,6 +42,11 @@ identifier  ({letter})({letter}|{digit})*
 %x STRING
 %x COMMENT_ONE
 %x COMMENT_MUL
+%x PRAGMA 
+%x PRAGMA_SOU 
+%x PRAGMA_TOK
+%x PRAGMA_STA
+%x PRAGMA_AFTER
 %%
 ","   { tokenString("delim", ","); }
 ";"   { tokenString("delim", ";"); }
@@ -126,11 +133,7 @@ identifier  ({letter})({letter}|{digit})*
 			 strcat(str, "\""); 	
 			}
 
-<STRING>"\n"            { /* error */
-                         fprintf( stdout, "error at line %d: string `%s` missing terminating \" character\n", linenum, str );
-                         exit(1);
-                        }     
-
+<STRING>"\n"            { error();}     
 
 
 
@@ -168,7 +171,40 @@ identifier  ({letter})({letter}|{digit})*
 
 <COMMENT_MUL>.          { LIST; }
 
-	/*=============PRAGMA : set_pragma(char* p)==========*/
+
+^"#pragma"		{
+			/*Nothing before pragma, legal*/
+		  	 LIST;
+		 	 BEGIN PRAGMA;
+			}
+
+<PRAGMA>"source"	{ LIST; BEGIN PRAGMA_SOU; }
+<PRAGMA>"token"		{ LIST; BEGIN PRAGMA_TOK; }
+<PRAGMA>"statistic"	{ LIST; BEGIN PRAGMA_STA; }
+
+<PRAGMA_SOU>[ \t]*"on"	{ LIST; set_pragma(1); BEGIN PRAGMA_AFTER;}
+<PRAGMA_SOU>[ \t]*"off"	{ LIST; set_pragma(2); BEGIN PRAGMA_AFTER;}
+<PRAGMA_TOK>[ \t]*"on"	{ LIST; set_pragma(3); BEGIN PRAGMA_AFTER;}
+<PRAGMA_TOK>[ \t]*"off"	{ LIST; set_pragma(4); BEGIN PRAGMA_AFTER;}
+<PRAGMA_STA>[ \t]*"on"	{ LIST; set_pragma(5); BEGIN PRAGMA_AFTER;}
+<PRAGMA_STA>[ \t]*"off"	{ LIST; set_pragma(6); BEGIN PRAGMA_AFTER;}
+
+<PRAGMA_AFTER>[ \t]*	{ LIST; }
+<PRAGMA_AFTER>"/*"	{ 
+			  LIST; 
+			  BEGIN COMMENT_MUL;
+			}
+<PRAGMA_AFTER>"//"	{ 
+			  LIST; 
+			  BEGIN COMMENT_ONE;
+			}
+<PRAGMA_AFTER>"\n"	{ 
+			 LIST;
+        		 if (Opt_Source) printf("%d:%s\n", linenum, buf);
+			 ++linenum;
+        		 buf[0] = '\0';
+			 BEGIN INITIAL;
+			}
 
 {whitespace}		{ LIST;}
 
@@ -180,8 +216,9 @@ identifier  ({letter})({letter}|{digit})*
       }
 
 .     { // Unrecognized character
-        fprintf(stderr, "Error at line %d: %s\n", linenum, yytext);
-        exit(1);
+        error();
+	//fprintf(stderr, "Error at line %d: %s\n", linenum, yytext);
+        //exit(1);
       }
 
 %%
@@ -216,6 +253,11 @@ int main( int argc, char **argv )
     exit(0);
 }
 
+void error(){	
+        fprintf(stderr, "Error at line %d: %s\n", linenum, yytext);
+	exit(1);
+}
+
 int id_search(char* newid){
   for(int i=0; i<=id_count; i++){
     //match, id already exist
@@ -233,6 +275,31 @@ int id_search(char* newid){
   return id_count;
 }
 
-void set_pragma(char *pragma){
-	;
+void set_pragma(int type){
+	switch(type){
+		case 1:
+			printf("source on.\n");
+			Opt_Source = 1;
+			break;
+		case 2:
+			printf("source off.\n");
+			Opt_Source = 0;
+			break;
+		case 3:
+			printf("token on.\n");
+			Opt_Token = 1;
+			break;
+		case 4:
+			printf("token off.\n");
+			Opt_Token = 0;
+			break;
+		case 5:
+			printf("statistic on.\n");
+			Opt_Statistic = 1;
+			break;
+		case 6:
+			printf("statistic off.\n");
+			Opt_Statistic = 0;
+			break;
+	}
 }

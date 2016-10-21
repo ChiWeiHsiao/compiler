@@ -21,8 +21,6 @@ struct id_entity{
 int id_count = 0; //the number of existing identifier
 int id_search(char* newid);//function 
 
-void set_pragma(int type);
-
 void error();
 
 %}
@@ -31,11 +29,10 @@ whitespace  [ \t]+
 letter  [A-Za-z]
 digit [0-9]
 integer 0|[1-9][0-9]*
-integral [0-9]+
-fraction  [0-9]+
-float {integral}"."{fraction}
-scientific  [0]*({integer}|{float})[Ee][\+-]?[0]*({integer})
-string {letter}"???"
+float [0-9]+"."[0-9]+
+significand [0]*({integer}|{float})
+exponent [0]*({integer})
+scientific  {significand}[Ee][\+-]?{exponent}
 identifier  ({letter})({letter}|{digit})*
 
 
@@ -62,6 +59,7 @@ identifier  ({letter})({letter}|{digit})*
 "*"   { token("*"); }
 "/"   { token("/"); }
 "%"   { token("%"); }
+"="   { token("="); }
 "<"   { token("<"); }
 "<="  { token("<="); }
 "!="  { token("!="); }
@@ -99,7 +97,6 @@ identifier  ({letter})({letter}|{digit})*
 {integer}       	{ tokenString("integer",yytext);  }
 {float}         	{ tokenString("float",yytext);  }
 {scientific}   		{ tokenString("scientific",yytext);  }
-{string}       		{ tokenString("string",yytext);  }
 
 
 "\""			{ /*start of a string  */
@@ -108,29 +105,28 @@ identifier  ({letter})({letter}|{digit})*
                         }   
 
 <STRING>([^"\n\\])+     {/*General Case: not \ " \n*/   
-			//printf("RULE: general case\n");
                           LIST;
                           strcat( str, yytext );
-                        }   
+                        }
 
-<STRING>[\"]$		{/*end of the string*/
-			 //LIST;
-			//printf("RULE: end of string \n");
-			 tokenString("string",str);
+
+<STRING>[\\][\"]	{/*double quote*/
+			 LIST;
+			 strcat(str, "\""); 	
+			}
+
+
+<STRING>[\"]		{/*end of the string*/
+			 LIST;
+			 //tokenString("string",str);
+ 			 if (Opt_Token) printf("<string:%s>\n", str); 
 			 str[0]= '\0'; //clear the string
 			 BEGIN INITIAL;
 			}
 
 <STRING>[\\]{2}		{/*back-slash*/
 			 LIST;
-			//printf("RULE: back-s \n\n");
 			 strcat(str, "\\"); 	
-			}
-
-<STRING>[\\][\"]	{/*double quote*/
-			//printf("RULE: double-quote \n\n");
-			 LIST;
-			 strcat(str, "\""); 	
 			}
 
 <STRING>"\n"            { error();}     
@@ -181,15 +177,40 @@ identifier  ({letter})({letter}|{digit})*
 <PRAGMA>"source"	{ LIST; BEGIN PRAGMA_SOU; }
 <PRAGMA>"token"		{ LIST; BEGIN PRAGMA_TOK; }
 <PRAGMA>"statistic"	{ LIST; BEGIN PRAGMA_STA; }
+<PRAGMA>{whitespace}	{ LIST; }
 
-<PRAGMA_SOU>[ \t]*"on"	{ LIST; set_pragma(1); BEGIN PRAGMA_AFTER;}
-<PRAGMA_SOU>[ \t]*"off"	{ LIST; set_pragma(2); BEGIN PRAGMA_AFTER;}
-<PRAGMA_TOK>[ \t]*"on"	{ LIST; set_pragma(3); BEGIN PRAGMA_AFTER;}
-<PRAGMA_TOK>[ \t]*"off"	{ LIST; set_pragma(4); BEGIN PRAGMA_AFTER;}
-<PRAGMA_STA>[ \t]*"on"	{ LIST; set_pragma(5); BEGIN PRAGMA_AFTER;}
-<PRAGMA_STA>[ \t]*"off"	{ LIST; set_pragma(6); BEGIN PRAGMA_AFTER;}
+<PRAGMA_SOU>[ \t]*"on"	{
+			 LIST;
+			 Opt_Source = 1;
+		 	 BEGIN PRAGMA_AFTER;
+			}
+<PRAGMA_SOU>[ \t]*"off"	{ 
+			LIST;
+			 Opt_Source = 0;
+		 	BEGIN PRAGMA_AFTER;
+			}
+<PRAGMA_TOK>[ \t]*"on"	{
+			 LIST;
+			 Opt_Token = 1;		
+		  	 BEGIN PRAGMA_AFTER;
+			}
+<PRAGMA_TOK>[ \t]*"off"	{
+			 LIST; 
+			 Opt_Token = 0;
+			 BEGIN PRAGMA_AFTER;
+			}
+<PRAGMA_STA>[ \t]*"on"	{ 
+			LIST;
+			Opt_Statistic = 1;
+		 	BEGIN PRAGMA_AFTER;
+			}
+<PRAGMA_STA>[ \t]*"off"	{
+			 LIST;
+			 Opt_Statistic = 0;	
+			 BEGIN PRAGMA_AFTER;
+			}
 
-<PRAGMA_AFTER>[ \t]*	{ LIST; }
+<PRAGMA_AFTER>{whitespace}	{ LIST; }
 <PRAGMA_AFTER>"/*"	{ 
 			  LIST; 
 			  BEGIN COMMENT_MUL;
@@ -263,7 +284,6 @@ int id_search(char* newid){
     //match, id already exist
     if(strcmp(newid, id_table[i].name)==0){
       id_table[i].count++;
-	printf("id exist. num: %d\n", id_table[i].count);
       return i; 
     }
   }
@@ -271,35 +291,5 @@ int id_search(char* newid){
   strcpy(id_table[id_count].name, newid);
   id_table[id_count].count = 1;
   id_count++;
-	printf("new id!\n");
   return id_count;
-}
-
-void set_pragma(int type){
-	switch(type){
-		case 1:
-			printf("source on.\n");
-			Opt_Source = 1;
-			break;
-		case 2:
-			printf("source off.\n");
-			Opt_Source = 0;
-			break;
-		case 3:
-			printf("token on.\n");
-			Opt_Token = 1;
-			break;
-		case 4:
-			printf("token off.\n");
-			Opt_Token = 0;
-			break;
-		case 5:
-			printf("statistic on.\n");
-			Opt_Statistic = 1;
-			break;
-		case 6:
-			printf("statistic off.\n");
-			Opt_Statistic = 0;
-			break;
-	}
 }

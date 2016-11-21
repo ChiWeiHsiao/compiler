@@ -79,6 +79,21 @@ declaration_list : declaration_list const_decl
                  | declaration_list var_decl
                  | declaration_list funct_decl
 				 ;
+funct_decl : type identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS SEMICOLON
+           | /*? compound*/
+           ;
+
+/*int x, int y[2][8], string z*/
+formal_argument_list : non_empty_formal_argument_list 
+                     | /*?? empty*/
+                    ;
+
+non_empty_formal_argument_list: formal_argument 
+                              ;
+
+formal_argument : type identifier
+                ;
+
 const_decl : 
 	   ;
 

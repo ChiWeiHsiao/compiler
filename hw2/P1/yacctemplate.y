@@ -1,4 +1,4 @@
-% {
+%{
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,13 +9,6 @@ extern char buf[256];           /* declared in lex.l */
 %}
 
 %token SEMICOLON    /* ; */
-%token COMMA    /* , */
-%token L_PARENTHESIS;    /* ( */
-%token R_PARENTHESIS;    /* ) */
-%token L_BRACKET;    /* [ */
-%token R_BRACKET;    /* ] */
-%token L_BRACE;    /* { */
-%token R_BRACE;    /* } */
 %token ID           /* identifier */
 %token INT          /* keyword */
 
@@ -32,26 +25,16 @@ declaration_list : declaration_list const_decl
                  | declaration_list var_decl
                  | declaration_list funct_decl
 				 ;
-const_decl : 
-	   ;
 
-var_decl : type non_empty_identifier_list SEMICOLON
+var_decl : type identifier SEMICOLON
          ;
 
-non_empty_identifier_list:identifier identifier_list
-			; 
-
-identifier_list	: COMMA identifier_list
-		| identifier
-		;
-
-type : INT | DOUBLE | FLOAT | STRING | BOOL
-     ; /*? array */
-
+type : INT
+     ; 
 
 identifier : ID
 	   ;	
-   
+
 %%
 
 int yyerror( char *msg )

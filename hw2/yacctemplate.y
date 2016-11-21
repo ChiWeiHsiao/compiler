@@ -8,6 +8,7 @@ extern char *yytext;            /* declared by lex */
 extern char buf[256];           /* declared in lex.l */
 %}
 
+/*Punctuation*/
 %token SEMICOLON    /* ; */
 %token COMMA    /* , */
 %token L_PARENTHESIS;    /* ( */
@@ -16,8 +17,54 @@ extern char buf[256];           /* declared in lex.l */
 %token R_BRACKET;    /* ] */
 %token L_BRACE;    /* { */
 %token R_BRACE;    /* } */
-%token ID           /* identifier */
+
+/*Relation*/
+%token PLUS;
+%token MINUS;
+%token MULTIPLY;
+%token DIVIDE;
+%token MOD;
+%token ASSIGN;
+%token LESS;
+%token LESS_EQUAL;
+%token NOT_EQUAL;
+%token GREATER_EQUAL;
+%token GREATER;
+%token EQUAL;
+%token AND;
+%token OR;
+%token NOT;
+
+/*Keyword*/
+%token WHILE;
+%token DO;
+%token IF;
+%token ELSE;
+%token TRUE;
+%token FALSE;
+%token FOR;
 %token INT          /* keyword */
+%token PRINT;
+%token CONST;
+%token READ;
+%token BOOLEAN;
+%token BOOL;
+%token VOID;
+%token FLOAT;
+%token DOUBLE;
+%token STRING;
+%token CONTINUE;
+%token BREAK;
+%token RETURN;
+
+%token ID           /* identifier */
+
+%token INTERGER_NUM;
+%token FLOAT_NUM;
+%token SCIENTIFIC_NUM;
+
+%token STRING_CON;
+
 
 %%
 

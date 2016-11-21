@@ -59,47 +59,48 @@ identifier  ({letter})({letter}|{digit})*
 
 "+"   { token("+"); return PLUS; }
 "-"   { token("-"); return MINUS; }
-"*"   { token("*"); }
-"/"   { token("/"); }
-"%"   { token("%"); }
-"="   { token("="); }
-"<"   { token("<"); }
-"<="  { token("<="); }
-"!="  { token("!="); }
-">="  { token(">="); }
-">"   { token(">"); }
-"=="  { token("=="); }
-"&&"  { token("&&"); }
-"||"  { token("||"); }
-"!"   { token("!"); }
+"*"   { token("*"); return MULTIPLY; }
+"/"   { token("/"); return DIVIDE; }
+"%"   { token("%"); return MOD; }
+"="   { token("="); return ASSIGN; }
+"<"   { token("<"); return LESS; }
+"<="  { token("<="); return LESS_EQUAL;}
+"!="  { token("!="); return NOT_EQUAL; }
+">="  { token(">="); return GREATER_EQUAL; }
+">"   { token(">"); return GREATER; }
+"=="  { token("=="); return EQUAL; }
+"&&"  { token("&&"); return AND; }
+"||"  { token("||"); return OR; }
+"!"   { token("!"); return NOT; }
 
-"while"                         { token("KW:while"); }
-"do"                            { token("KW:do"); }
-"if"                            { token("KW:if"); }
-"else"                          { token("KW:else"); }
-"true"                          { token("KW:true"); }
-"false"                         { token("KW:false"); }
-"for"                           { token("KW:for"); }
-"int"                           { token("KW:int"); }
-"print"                         { token("KW:print"); }
-"const"                         { token("KW:const"); }
-"read"                          { token("KW:read"); }
-"boolean"                       { token("KW:boolean"); }
-"bool"                          { token("KW:bool"); }
-"void"                          { token("KW:void"); }
-"float"                         { token("KW:float"); }
-"double"                        { token("KW:double"); }
-"string"                        { token("KW:string"); }
-"continue"                      { token("KW:continue"); }
-"break"                         { token("KW:break"); }
-"return"                        { token("KW:return"); }
+"while"                         { token("KW:while"); return WHILE; }
+"do"                            { token("KW:do"); return DO; }
+"if"                            { token("KW:if"); return IF; }
+"else"                          { token("KW:else"); return ELSE; }
+"true"                          { token("KW:true"); return TRUE; }
+"false"                         { token("KW:false"); return FALSE; }
+"for"                           { token("KW:for"); return FOR; }
+"int"                           { token("KW:int"); return INT}
+"print"                         { token("KW:print"); return PRINT; }
+"const"                         { token("KW:const"); return CONST: }
+"read"                          { token("KW:read"); return READ; }
+"boolean"                       { token("KW:boolean"); return BOOLEAN; }
+"bool"                          { token("KW:bool"); return BOOL; }
+"void"                          { token("KW:void"); return VOID; }
+"float"                         { token("KW:float"); return FLOAT; }
+"double"                        { token("KW:double"); return DOUBLE; }
+"string"                        { token("KW:string"); return STRING; }
+"continue"                      { token("KW:continue"); return CONTINUE: }
+"break"                         { token("KW:break"); return BREAK; }
+"return"                        { token("KW:return"); return RETURN; }
 
 {identifier}    	{ tokenString("id",yytext); 
                  	  if(Opt_Statistic) id_search(yytext); 
+                 	  return ID;
                 	}
-{integer}       	{ tokenString("integer",yytext);  }
-{float}         	{ tokenString("float",yytext);  }
-{scientific}   		{ tokenString("scientific",yytext);  }
+{integer}       	{ tokenString("integer",yytext);  return INTEGER_NUM; }
+{float}         	{ tokenString("float",yytext);  return FLOAT_NUM; }
+{scientific}   		{ tokenString("scientific",yytext);  return SCIENTIFIC_NUM; }
 
 
 "\""			{ /*start of a string  */
@@ -125,6 +126,7 @@ identifier  ({letter})({letter}|{digit})*
  			 if (Opt_Token) printf("<string:%s>\n", str); 
 			 str[0]= '\0'; //clear the string
 			 BEGIN INITIAL;
+			 return STRING_CON;
 			}
 
 <STRING>[\\]{2}		{/*back-slash*/

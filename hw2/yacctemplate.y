@@ -86,32 +86,36 @@ funct_decl : type identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS SE
            ;
 
 /*int x, int y[2][8], string z*/
-formal_argument_list : non_empty_formal_argument_list 
+formal_argument_list : nonEmpty_formal_argument_list 
                      | /* epsilon*/
                      ;
-non_empty_formal_argument_list: non_empty_formal_argument_list COMMA formal_argument
+nonEmpty_formal_argument_list: nonEmpty_formal_argument_list COMMA formal_argument
                               | formal_argument
                               ;
 formal_argument : type identifier
                 | type array
                 ;
-array : identifier dimention_list ; /*y[2][8]*/
 
 dimention_list : dimention_list L_BRACKET CONS_INTEGER R_BRACKET /*[2][8]*/
                | L_BRACKET CONS_INTEGER R_BRACKET
-               ;
+               ;/*for array [4][5]*/
 
-
-const_decl : 
+const_decl : CONST type const_list
 	   ;
 
-var_decl : type non_empty_identifier_list SEMICOLON
+const_list : const_list COMMA const_init
+           | const_init
+           ;
+const_init : ID ASSIGN CONS_INTEGER
+           | ID ASSIGN CONS_FLOAT
+           | ID ASSIGN CONS_SCIENTIFIC
+           | ID ASSIGN CONS_STRING
+           ;
+
+var_decl : type identifier_list SEMICOLON
          ;
 
-non_empty_identifier_list:identifier identifier_list
-			; 
-
-identifier_list	: COMMA identifier_list
+identifier_list	: identifier_list COMMA identifier /*not empty*/
 		| identifier
 		;
 
@@ -119,8 +123,27 @@ type : INT | DOUBLE | FLOAT | STRING | BOOL ;
             
 
 identifier : ID
-	   ;	
-   
+           | ID ASSIGN expr
+           | array
+           | array ASSIGN init_array 
+	   ;
+
+array : ID dimention_list  /*y[2][8]*/
+      ;
+init_array: L_BRACE expr_list R_BRACE
+          ;
+
+expr : /*???*/ 
+     ;
+
+expr_list : nonEmpty_expr_list
+          | /*epsilon*/
+          ;
+
+nonEmpty_expr_list : nonEmpty_expr_list COMMA expr
+                   | expr 
+                   ;
+
 %%
 
 int yyerror( char *msg )

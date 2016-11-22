@@ -8,6 +8,8 @@ extern char *yytext;            /* declared by lex */
 extern char buf[256];           /* declared in lex.l */
 %}
 
+%nonassoc INT BOOL FLOAT DOUBLE STRING CONST VOID
+%token BOOLEAN
 /*Punctuation*/
 %token SEMICOLON    /* ; */
 %token COMMA    /* , */
@@ -43,16 +45,8 @@ extern char buf[256];           /* declared in lex.l */
 %token TRUE
 %token FALSE
 %token FOR
-%token INT          /* keyword */
 %token PRINT
-%token CONST
 %token READ
-%token BOOLEAN
-%token BOOL
-%token VOID
-%token FLOAT
-%token DOUBLE
-%token STRING
 %token CONTINUE
 %token BREAK
 %token RETURN
@@ -67,20 +61,25 @@ extern char buf[256];           /* declared in lex.l */
 
 %start program
 
+
 %%
 
 program : decl_and_def_list
 	;
 
-decl_and_def_list	: decl_and_def_list declaration_list
-			| decl_and_def_list definition_list
+decl_and_def_list	: declaration_list decl_and_def_list 
+			| definition_list decl_and_def_list   
+			| definition_list 
 			;
-definition_list : /**/
+definition_list : funct_def definition_list /**/
+		| funct_def
                 ;
+funct_def: type identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS compound_st 
+	 | VOID identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS compound_st
 
-declaration_list : declaration_list const_decl
-                 | declaration_list var_decl
-                 | declaration_list funct_decl
+declaration_list : const_decl declaration_list 
+                 | var_decl declaration_list 
+                 | funct_decl declaration_list 
 		 ;
 
 funct_decl : type identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS SEMICOLON /*will return something*/
@@ -98,7 +97,7 @@ formal_argument : type identifier
                 | type array
                 ;
 
-dimention_list : dimention_list L_BRACKET CONS_INTEGER R_BRACKET /*[2][8]*/
+const_dimention_list : const_dimention_list L_BRACKET CONS_INTEGER R_BRACKET /*[2][8]*/
                | L_BRACKET CONS_INTEGER R_BRACKET
                ;/*for array [4][5]*/
 
@@ -130,13 +129,10 @@ identifier : ID
            | array ASSIGN init_array 
 	   ;
 
-array : ID dimention_list  /*y[2][8]*/
+array : ID const_dimention_list  /*y[2][8]*/
       ;
 init_array: L_BRACE expr_list R_BRACE
           ;
-
-expr : /*???*/ 
-     ;
 
 expr_list : nonEmpty_expr_list
           | /*epsilon*/
@@ -145,6 +141,40 @@ expr_list : nonEmpty_expr_list
 nonEmpty_expr_list : nonEmpty_expr_list COMMA expr
                    | expr 
                    ;
+statement	: compound_st
+	  	| simple_st
+		| condition_st
+		| while_st
+		| for_st
+		| jump_st
+		| procedure_call
+		;
+/*Compound*/
+compound_st : L_BRACE var_const_st_list R_BRACE 
+	    ;
+	/*0 or more*/
+var_const_st_list : var_decl var_const_st_list  
+		  | const_decl var_const_st_list
+		  | statement var_const_st_list
+		  | /*epsilon*/
+		  ;
+/*Simple*/
+simple	: var_ref ASSIGN expr SEMICOLON
+       	| PRINT var_ref SEMICOLON
+	| PRINT expr SEMICOLON
+	| READ var_ref
+	;
+
+var_ref	: ID
+	| ID expr_dimention_list
+	;
+
+expr_dimention_list : expr_dimention_list L_BRACKET expr R_BRACKET 
+		    | L_BRACKET expr R_BRACKET 
+		    ;
+expr	:
+     	;
+
 
 %%
 

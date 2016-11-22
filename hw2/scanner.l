@@ -1,6 +1,6 @@
 %{
 #include <string.h>
-#include “y.tab.h”
+#include "y.tab.h"“
 
 #define LIST                { strncat(buf, yytext, sizeof(buf) - strlen(buf) - 1); }
 #define token(t)            { LIST; if (Opt_Token) printf("<%s>\n", #t); }
@@ -80,9 +80,9 @@ identifier  ({letter})({letter}|{digit})*
 "true"                          { token("KW:true"); return TRUE; }
 "false"                         { token("KW:false"); return FALSE; }
 "for"                           { token("KW:for"); return FOR; }
-"int"                           { token("KW:int"); return INT}
+"int"                           { token("KW:int"); return INT; }
 "print"                         { token("KW:print"); return PRINT; }
-"const"                         { token("KW:const"); return CONST: }
+"const"                         { token("KW:const"); return CONST; }
 "read"                          { token("KW:read"); return READ; }
 "boolean"                       { token("KW:boolean"); return BOOLEAN; }
 "bool"                          { token("KW:bool"); return BOOL; }
@@ -90,7 +90,7 @@ identifier  ({letter})({letter}|{digit})*
 "float"                         { token("KW:float"); return FLOAT; }
 "double"                        { token("KW:double"); return DOUBLE; }
 "string"                        { token("KW:string"); return STRING; }
-"continue"                      { token("KW:continue"); return CONTINUE: }
+"continue"                      { token("KW:continue"); return CONTINUE; }
 "break"                         { token("KW:break"); return BREAK; }
 "return"                        { token("KW:return"); return RETURN; }
 
@@ -288,6 +288,7 @@ identifier  ({letter})({letter}|{digit})*
       }
 
 %%
+/*
 int main( int argc, char **argv )
 {
     if (argc >= 2)
@@ -318,7 +319,7 @@ int main( int argc, char **argv )
 
     exit(0);
 }
-
+*/
 void error(){	
         fprintf(stderr, "Error at line %d: %s\n", linenum, yytext);
 	exit(1);

@@ -9,7 +9,8 @@ extern char buf[256];           /* declared in lex.l */
 %}
 
 %nonassoc INT BOOL FLOAT DOUBLE STRING CONST VOID
-%token BOOLEAN
+%nonassoc BOOLEAN
+
 /*Punctuation*/
 %token SEMICOLON    /* ; */
 %token COMMA    /* , */
@@ -20,24 +21,18 @@ extern char buf[256];           /* declared in lex.l */
 %token L_BRACE    /* { */
 %token R_BRACE    /* } */
 
-/*Relation*/
-%token PLUS
-%token MINUS
-%token MULTIPLY
-%token DIVIDE
-%token MOD
-%token ASSIGN
-%token LESS
-%token LESS_EQUAL
-%token NOT_EQUAL
-%token GREATER_EQUAL
-%token GREATER
-%token EQUAL
-%token AND
-%token OR
+/*operation*/
+%left OR
+%left AND
 %token NOT
+%left LESS LESS_EQ EQUAL GREAT_EQ GREAT NOT_EQ
+%left PLUS MINUS
+%left MULTIPLY DIVIDE MOD
+/*?? unary -*/
 
 /*Keyword*/
+%token ASSIGN
+
 %token WHILE
 %token DO
 %token IF
@@ -50,13 +45,11 @@ extern char buf[256];           /* declared in lex.l */
 %token CONTINUE
 %token BREAK
 %token RETURN
-
 %token ID           /* identifier */
 
 %token CONS_INTEGER
 %token CONS_FLOAT
 %token CONS_SCIENTIFIC
-
 %token CONS_STRING
 
 %start program
@@ -172,8 +165,27 @@ var_ref	: ID
 expr_dimention_list : expr_dimention_list L_BRACKET expr R_BRACKET 
 		    | L_BRACKET expr R_BRACKET 
 		    ;
-expr	:
-     	;
+expr : expr  expr
+     | expr '-' expr
+     | expr '*' expr
+     | expr '/' expr
+     | expr '%' expr
+     | '-' expr %prec '*' {printf("Reduce with negation operator\n");}
+     | '(' expr ')'
+     | expr OP_LT expr
+     | expr OP_LE expr
+     | expr OP_GT expr
+     | expr OP_GE expr
+     | expr OP_NE expr
+     | expr OP_EQ expr
+     | expr OP_AND expr
+     | expr OP_OR expr
+     | OP_NOT expr
+     | literal_constant
+     | funct_call
+     | var_ref
+     ;
+
 
 
 %%

@@ -64,10 +64,10 @@ identifier  ({letter})({letter}|{digit})*
 "%"   { token("%"); return MOD; }
 "="   { token("="); return ASSIGN; }
 "<"   { token("<"); return LESS; }
-"<="  { token("<="); return LESS_EQUAL;}
-"!="  { token("!="); return NOT_EQUAL; }
-">="  { token(">="); return GREATER_EQUAL; }
-">"   { token(">"); return GREATER; }
+"<="  { token("<="); return LESS_EQ;}
+"!="  { token("!="); return NOT_EQ; }
+">="  { token(">="); return GREAT_EQ; }
+">"   { token(">"); return GREAT; }
 "=="  { token("=="); return EQUAL; }
 "&&"  { token("&&"); return AND; }
 "||"  { token("||"); return OR; }

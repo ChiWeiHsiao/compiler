@@ -98,9 +98,9 @@ identifier  ({letter})({letter}|{digit})*
                  	  if(Opt_Statistic) id_search(yytext); 
                  	  return ID;
                 	}
-{integer}       	{ tokenString("integer",yytext);  return INTEGER_NUM; }
-{float}         	{ tokenString("float",yytext);  return FLOAT_NUM; }
-{scientific}   		{ tokenString("scientific",yytext);  return SCIENTIFIC_NUM; }
+{integer}       	{ tokenString("integer",yytext);  return CONS_INTEGER; }
+{float}         	{ tokenString("float",yytext);  return CONS_FLOAT; }
+{scientific}   		{ tokenString("scientific",yytext);  return CONS_SCIENTIFIC; }
 
 
 "\""			{ /*start of a string  */
@@ -126,7 +126,7 @@ identifier  ({letter})({letter}|{digit})*
  			 if (Opt_Token) printf("<string:%s>\n", str); 
 			 str[0]= '\0'; //clear the string
 			 BEGIN INITIAL;
-			 return STRING_CON;
+			 return CONS_STRING;
 			}
 
 <STRING>[\\]{2}		{/*back-slash*/

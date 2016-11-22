@@ -1,4 +1,4 @@
-% {
+%{
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -59,8 +59,8 @@ extern char buf[256];           /* declared in lex.l */
 
 %token ID           /* identifier */
 
-%token CONS_INTERGER
-%token CONS_FLOAT_NUM
+%token CONS_INTEGER
+%token CONS_FLOAT
 %token CONS_SCIENTIFIC
 
 %token CONS_STRING
@@ -75,11 +75,13 @@ program : decl_and_def_list
 decl_and_def_list	: decl_and_def_list declaration_list
 			| decl_and_def_list definition_list
 			;
+definition_list : /**/
+                ;
 
 declaration_list : declaration_list const_decl
                  | declaration_list var_decl
                  | declaration_list funct_decl
-				 ;
+		 ;
 
 funct_decl : type identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS SEMICOLON /*will return something*/
            | VOID identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS SEMICOLON  /*procedure*/
@@ -89,7 +91,7 @@ funct_decl : type identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS SE
 formal_argument_list : nonEmpty_formal_argument_list 
                      | /* epsilon*/
                      ;
-nonEmpty_formal_argument_list: nonEmpty_formal_argument_list COMMA formal_argument
+nonEmpty_formal_argument_list : formal_argument COMMA nonEmpty_formal_argument_list
                               | formal_argument
                               ;
 formal_argument : type identifier

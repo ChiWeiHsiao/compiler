@@ -65,6 +65,8 @@ program	: decl_and_def_list
 		;
 
 
+
+
 decl_and_def_list	: decl_and_def_list declaration_list
 					| declaration_list decl_and_def_list
 					| definition_list
@@ -72,10 +74,10 @@ decl_and_def_list	: decl_and_def_list declaration_list
 					;
 
 /* Declare 1 or more */
-declaration_list	: declaration_list const_decl
-					| declaration_list var_decl
-					| declaration_list funct_decl 
-					| declaration_list proc_decl 
+declaration_list	: const_decl declaration_list
+					| var_decl declaration_list 
+					| funct_decl declaration_list  
+					| proc_decl  mdeclaration_list 
 					| const_decl 
 					| var_decl 
 					| funct_decl
@@ -183,22 +185,14 @@ compound_st	: compound_list R_BRACE
 compound_list	: L_BRACE nonEmpty_compound_list 
 				| L_BRACE
 				;
-nonEmpty_compound_list	: var_const_decl_list nonEmpty_compound_list
-						| stat_list nonEmpty_compound_list
-						| var_const_decl_list
-						| stat_list
+nonEmpty_compound_list	: var_decl nonEmpty_compound_list
+						| const_decl nonEmpty_compound_list
+						| statement nonEmpty_compound_list
+						| var_decl
+						| const_decl
+						| statement
 						;
 
-
-var_const_decl_list	: var_const_decl_list var_decl
-		 			| var_const_decl_list const_decl
-					| var_decl
-					| const_decl
-					;
-
-stat_list		: stat_list statement
-				| statement
-				;
 
 /* Statements, 7 types */
 /*? semicolon */
@@ -241,7 +235,7 @@ bool_expr	: expr
 
 /* While statment*/
 while_st 	: WHILE L_PAREN bool_expr R_PAREN compound_st /* while */
-			| DO compound_st WHILE L_PAREN bool_expr R_PAREN SEMICOLON /*do while*/
+			| DO compound_st WHILE L_PAREN bool_expr R_PAREN SEMICOLON {printf("# %d: do-while mast\n",linenum);} /*do while*/
 			;
 
 /* Jump */			

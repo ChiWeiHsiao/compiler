@@ -6,20 +6,22 @@ extern int linenum;             /* declared in lex.l */
 extern FILE *yyin;              /* declared by lex */
 extern char *yytext;            /* declared by lex */
 extern char buf[256];           /* declared in lex.l */
+
+int yylex();
+int yyerror(char *s);
+
 %}
 
 %nonassoc INT BOOL FLOAT DOUBLE STRING CONST VOID
 %nonassoc BOOLEAN
 
 /*Punctuation*/
-%token SEMICOLON    /* ; */
-%token COMMA    /* , */
-%token L_PARENTHESIS    /* ( */
-%token R_PARENTHESIS    /* ) */
-%token L_BRACKET    /* [ */
-%token R_BRACKET    /* ] */
-%token L_BRACE    /* { */
-%token R_BRACE    /* } */
+%nonassoc L_PAREN
+%nonassoc R_PAREN
+%nonassoc L_BRACKET 
+%nonassoc R_BRACKET
+%nonassoc L_BRACE 
+%nonassoc R_BRACE 
 
 /*operation*/
 %left OR
@@ -37,8 +39,6 @@ extern char buf[256];           /* declared in lex.l */
 %token DO
 %token IF
 %token ELSE
-%token TRUE
-%token FALSE
 %token FOR
 %token PRINT
 %token READ
@@ -47,86 +47,280 @@ extern char buf[256];           /* declared in lex.l */
 %token RETURN
 %token ID           /* identifier */
 
+%token SEMICOLON 
+%token COMMA 
+
 %token CONS_INTEGER
 %token CONS_FLOAT
 %token CONS_SCIENTIFIC
 %token CONS_STRING
+%token CONS_BOOL
 
 %start program
 
 
 %%
-
-program : decl_and_def_list
-	;
-
-decl_and_def_list	: declaration_list decl_and_def_list 
-			| definition_list decl_and_def_list   
-			| definition_list 
-			;
-definition_list : funct_def definition_list /**/
-		| funct_def
-                ;
-funct_def: type identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS compound_st 
-	 | VOID identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS compound_st
-
-declaration_list : const_decl declaration_list 
-                 | var_decl declaration_list 
-                 | funct_decl declaration_list 
-		 ;
-
-funct_decl : type identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS SEMICOLON /*will return something*/
-           | VOID identifier L_PARENTHESIS formal_argument_list R_PARENTHESIS SEMICOLON  /*procedure*/
-           ;
-
-/*int x, int y[2][8], string z*/
-formal_argument_list : nonEmpty_formal_argument_list 
-                     | /* epsilon*/
-                     ;
-nonEmpty_formal_argument_list : formal_argument COMMA nonEmpty_formal_argument_list
-                              | formal_argument
-                              ;
-formal_argument : type identifier
-                | type array
-                ;
-
-const_dimention_list : const_dimention_list L_BRACKET CONS_INTEGER R_BRACKET /*[2][8]*/
-               | L_BRACKET CONS_INTEGER R_BRACKET
-               ;/*for array [4][5]*/
-
-const_decl : CONST type const_list
-	   ;
-
-const_list : const_list COMMA const_init
-           | const_init
-           ;
-const_init : ID ASSIGN CONS_INTEGER
-           | ID ASSIGN CONS_FLOAT
-           | ID ASSIGN CONS_SCIENTIFIC
-           | ID ASSIGN CONS_STRING
-           ;
-
-var_decl : type identifier_list SEMICOLON
-         ;
-
-identifier_list	: identifier_list COMMA identifier /*not empty*/
-		| identifier
+/* at least one function_def in a program*/
+program	: decl_and_def_list 
 		;
 
-type : INT | DOUBLE | FLOAT | STRING | BOOL ;
-            
 
-identifier : ID
-           | ID ASSIGN expr
-           | array
-           | array ASSIGN init_array 
-	   ;
+decl_and_def_list	: decl_and_def_list declaration_list 
+					| definition_list
+					| decl_and_def_list definition_list
+					;
 
-array : ID const_dimention_list  /*y[2][8]*/
-      ;
-init_array: L_BRACE expr_list R_BRACE
-          ;
+/* Declare 1 or more */
+declaration_list	: declaration_list const_decl {printf("C: const decl\n");}
+					| declaration_list var_decl {printf("D: var decl\n");}
+					| declaration_list funct_decl {printf("D: func decl\n");}
+					| declaration_list proc_decl {printf("D: proc decl\n");}
+					| const_decl {printf("C: const decl\n");}
+					| var_decl {printf("D: funct decl\n");}
+					| funct_decl {printf("D: func decl\n");}
+					| proc_decl	{printf("D: proc decl\n");}
+					;
 
+/* Variable */
+var_decl : type var_list {printf("var_dec: want ;\n");} SEMICOLON {printf("var declare\n");}
+         ;
+
+/* General */
+type	: INT 
+		| DOUBLE 
+		| FLOAT 
+		| STRING 
+		| BOOL
+		| BOOLEAN /*?? */
+		; 
+
+identifier	: symbol_id
+			| symbol_id array_indice /* an array ex. x[1][2][4] */
+			;
+
+symbol_id	: ID {printf("ID\n");}
+			;
+	/* 1 or more */  /*[2][8]*/
+array_indice: array_indice L_BRACKET CONS_INTEGER R_BRACKET 
+			| L_BRACKET CONS_INTEGER R_BRACKET /*array_index*/
+			;
+
+/* Variable */
+var_list 	: var_list COMMA var_single /*not empty*/
+         	| var_single
+         	;
+
+var_single	: identifier /* w/o init*/
+			| symbol_id ASSIGN expr  /* a = 1+2 */
+			| symbol_id array_indice ASSIGN init_array /* arr[2] = { 4*4, 5 } */
+			;
+
+init_array	: L_BRACE expr_list R_BRACE
+          	;
+
+/* Constant Variable */
+const_decl	: CONST type const_list SEMICOLON
+	   		;
+
+const_list : const_init COMMA const_list
+           | const_init
+           ;
+
+const_init	: symbol_id ASSIGN literal_constant
+			;
+
+literal_constant	: CONS_INTEGER
+					| CONS_FLOAT
+					| CONS_SCIENTIFIC
+					| CONS_STRING
+					| CONS_BOOL
+					;
+
+/* Declare Function */
+funct_decl	: type symbol_id L_PAREN arg_list R_PAREN SEMICOLON {printf("Reduce: funct decl\n");}/*will return something*/
+			;
+
+proc_decl	: VOID symbol_id L_PAREN arg_list R_PAREN SEMICOLON {printf("Reduce: proc decl\n");} /*procedure*/
+			;
+
+
+
+/* Define 1 or more */ 
+definition_list	: definition_list definition
+				| definition
+				;
+
+definition 	: {printf("Reduce: func define \n");} type symbol_id L_PAREN arg_list R_PAREN compound_st 
+			| {printf("Reduce: proc define \n");} VOID symbol_id L_PAREN arg_list R_PAREN compound_st 
+            ;
+
+/* Argument */			
+	/*int x, int y[2][8], string z*/
+arg_list 	: nonEmpty_arg_list 
+			| /* epsilon*/
+			;
+
+nonEmpty_arg_list	: arg COMMA nonEmpty_arg_list
+					| arg
+					;
+
+arg 	: type identifier
+		;
+
+/* Compound, local */
+compound_st	: L_BRACE compound_list R_BRACE 
+	    	;
+/* 0 or more */
+compound_list	: compound_list var_const_decl_list
+				| compound_list stat_list
+				|
+				;
+
+	/* 0 or more*/
+var_const_decl_list	: var_const_decl_list var_decl
+		 			| var_const_decl_list const_decl
+					| var_decl
+					| const_decl
+					;
+
+stat_list		: stat_list statement
+				| statement
+				;
+
+/* Statements, 7 types */
+/*? semicolon */
+statement	: compound_st
+	  		| simple_st
+			| condition_st
+			| while_st
+			| for_st
+			| jump_st
+			| funct_invoc /*?same as in expr,  procedure call?*/
+			;
+
+
+/* Simple */
+simple_st	: var_ref ASSIGN expr SEMICOLON 
+       		| PRINT var_ref SEMICOLON
+			| PRINT expr SEMICOLON
+			| READ var_ref SEMICOLON
+			;
+
+var_ref	: symbol_id
+		| symbol_id arr_ref_indice /* a[3+3][1] */
+		;
+
+arr_ref_indice	: arr_ref_index arr_ref_indice
+				| arr_ref_index
+				;
+
+arr_ref_index	: L_BRACKET expr R_BRACKET
+				;
+
+
+/* Condition */
+condition_st	: IF L_PAREN bool_expr R_PAREN compound_st /* if */
+				| IF L_PAREN bool_expr R_PAREN compound_st ELSE compound_st /*if else*/
+				;
+
+bool_expr	: expr
+			;
+
+/* While statment*/
+while_st 	: WHILE L_PAREN bool_expr R_PAREN compound_st /* while */
+			| DO compound_st WHILE L_PAREN bool_expr R_PAREN SEMICOLON /*do while*/
+			;
+
+/* Jump */			
+jump_st	: RETURN expr SEMICOLON
+		| BREAK SEMICOLON
+		| CONTINUE SEMICOLON
+		;
+
+
+/* Expression */
+expr 	: L_PAREN expr R_PAREN 
+		| expr OR expr
+		| expr AND expr
+		| expr NOT expr
+		| expr LESS expr
+		| expr LESS_EQ expr
+		| expr EQUAL expr
+		| expr GREAT_EQ expr
+		| expr GREAT expr
+		| expr NOT_EQ expr
+		| expr PLUS expr
+		| expr MINUS expr
+    	| expr MULTIPLY expr
+    	| expr DIVIDE expr
+    	| expr MOD expr
+    	| MINUS expr %prec MULTIPLY {fprintf(stderr, "- as negation operator\n");}
+    	| literal_constant
+    	| var_ref
+    	| funct_invoc
+    	;
+     	/*| '(' expr ')'*/
+
+/* For */
+for_st	: FOR L_PAREN for_init SEMICOLON for_control SEMICOLON for_incre R_PAREN compound_st
+		;
+		/* 0 or more expr */
+		/* not finish */
+/*for_expr_list	: expr_list*/
+for_init	: nonEmpty_for_init
+			|
+			;
+nonEmpty_for_init	: nonEmpty_for_init COMMA for_single_entry
+					| for_single_entry
+					;
+/* assign or function call */
+for_incre	: nonEmpty_for_incre
+			|
+			;	
+
+nonEmpty_for_incre	: nonEmpty_for_incre COMMA for_single_entry
+					| for_single_entry
+					;
+
+/* relation */
+for_control	: nonEmpty_for_control
+			|
+			;
+
+nonEmpty_for_control	: nonEmpty_for_control COMMA for_control_entry
+						| for_control_entry
+						;
+for_control_entry	: symbol_id ASSIGN expr
+					| symbol_id array_indice ASSIGN init_array
+					| expr 
+					;
+/*
+for_control_entry	: expr OR expr
+					| expr AND expr
+					| expr NOT expr
+					| expr LESS expr
+					| expr LESS_EQ expr
+					| expr EQUAL expr
+					| expr GREAT_EQ expr
+					| expr GREAT expr
+					| expr NOT_EQ expr 
+					| symbol_id ASSIGN expr
+					| symbol_id array_indice ASSIGN init_array
+					;*/
+
+for_single_entry	: symbol_id ASSIGN expr
+					| symbol_id array_indice ASSIGN init_array
+					| funct_invoc
+					| expr
+					;
+
+/*init_expr	: */
+
+/* Function Invocation */     	
+funct_invoc	: symbol_id L_PAREN expr_list R_PAREN SEMICOLON {printf("call func\n");}/* 0 or more expr */
+			;
+
+	/* zero or more, seperated by ',' */
 expr_list : nonEmpty_expr_list
           | /*epsilon*/
           ;
@@ -134,57 +328,6 @@ expr_list : nonEmpty_expr_list
 nonEmpty_expr_list : nonEmpty_expr_list COMMA expr
                    | expr 
                    ;
-statement	: compound_st
-	  	| simple_st
-		| condition_st
-		| while_st
-		| for_st
-		| jump_st
-		| procedure_call
-		;
-/*Compound*/
-compound_st : L_BRACE var_const_st_list R_BRACE 
-	    ;
-	/*0 or more*/
-var_const_st_list : var_decl var_const_st_list  
-		  | const_decl var_const_st_list
-		  | statement var_const_st_list
-		  | /*epsilon*/
-		  ;
-/*Simple*/
-simple	: var_ref ASSIGN expr SEMICOLON
-       	| PRINT var_ref SEMICOLON
-	| PRINT expr SEMICOLON
-	| READ var_ref
-	;
-
-var_ref	: ID
-	| ID expr_dimention_list
-	;
-
-expr_dimention_list : expr_dimention_list L_BRACKET expr R_BRACKET 
-		    | L_BRACKET expr R_BRACKET 
-		    ;
-expr : expr  expr
-     | expr '-' expr
-     | expr '*' expr
-     | expr '/' expr
-     | expr '%' expr
-     | '-' expr %prec '*' {printf("Reduce with negation operator\n");}
-     | '(' expr ')'
-     | expr OP_LT expr
-     | expr OP_LE expr
-     | expr OP_GT expr
-     | expr OP_GE expr
-     | expr OP_NE expr
-     | expr OP_EQ expr
-     | expr OP_AND expr
-     | expr OP_OR expr
-     | OP_NOT expr
-     | literal_constant
-     | funct_call
-     | var_ref
-     ;
 
 
 

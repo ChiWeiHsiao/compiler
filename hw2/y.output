@@ -1,0 +1,3736 @@
+Rules never reduced
+
+  125 for_single_entry: funct_invoc
+
+
+State 2 conflicts: 7 shift/reduce
+State 3 conflicts: 7 reduce/reduce
+State 16 conflicts: 8 shift/reduce
+State 22 conflicts: 7 reduce/reduce
+State 88 conflicts: 1 shift/reduce
+State 122 conflicts: 1 shift/reduce
+State 123 conflicts: 1 shift/reduce
+State 124 conflicts: 14 shift/reduce
+State 125 conflicts: 1 shift/reduce
+State 126 conflicts: 1 shift/reduce
+State 127 conflicts: 1 shift/reduce
+State 128 conflicts: 1 shift/reduce
+State 129 conflicts: 1 shift/reduce
+State 130 conflicts: 1 shift/reduce
+State 131 conflicts: 1 shift/reduce
+State 132 conflicts: 1 shift/reduce
+State 133 conflicts: 1 shift/reduce
+State 134 conflicts: 1 shift/reduce
+State 135 conflicts: 1 shift/reduce
+State 161 conflicts: 7 shift/reduce
+State 162 conflicts: 11 shift/reduce
+State 175 conflicts: 1 shift/reduce
+State 195 conflicts: 3 reduce/reduce
+State 213 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: decl_and_def_list
+
+    2 decl_and_def_list: decl_and_def_list declaration_list
+    3                  | definition_list
+    4                  | decl_and_def_list definition_list
+
+    5 declaration_list: declaration_list const_decl
+    6                 | declaration_list var_decl
+    7                 | declaration_list funct_decl
+    8                 | declaration_list proc_decl
+    9                 | const_decl
+   10                 | var_decl
+   11                 | funct_decl
+   12                 | proc_decl
+
+   13 @1: /* empty */
+
+   14 var_decl: type var_list @1 SEMICOLON
+
+   15 type: INT
+   16     | DOUBLE
+   17     | FLOAT
+   18     | STRING
+   19     | BOOL
+   20     | BOOLEAN
+
+   21 identifier: symbol_id
+   22           | symbol_id array_indice
+
+   23 symbol_id: ID
+
+   24 array_indice: array_indice L_BRACKET CONS_INTEGER R_BRACKET
+   25             | L_BRACKET CONS_INTEGER R_BRACKET
+
+   26 var_list: var_list COMMA var_single
+   27         | var_single
+
+   28 var_single: identifier
+   29           | symbol_id ASSIGN expr
+   30           | symbol_id array_indice ASSIGN init_array
+
+   31 init_array: L_BRACE expr_list R_BRACE
+
+   32 const_decl: CONST type const_list SEMICOLON
+
+   33 const_list: const_init COMMA const_list
+   34           | const_init
+
+   35 const_init: symbol_id ASSIGN literal_constant
+
+   36 literal_constant: CONS_INTEGER
+   37                 | CONS_FLOAT
+   38                 | CONS_SCIENTIFIC
+   39                 | CONS_STRING
+   40                 | CONS_BOOL
+
+   41 funct_decl: type symbol_id L_PAREN arg_list R_PAREN SEMICOLON
+
+   42 proc_decl: VOID symbol_id L_PAREN arg_list R_PAREN SEMICOLON
+
+   43 definition_list: definition_list definition
+   44                | definition
+
+   45 @2: /* empty */
+
+   46 definition: @2 type symbol_id L_PAREN arg_list R_PAREN
+
+   47 @3: /* empty */
+
+   48 definition: @3 VOID symbol_id L_PAREN arg_list R_PAREN compound_st
+
+   49 arg_list: nonEmpty_arg_list
+   50         | /* empty */
+
+   51 nonEmpty_arg_list: arg COMMA nonEmpty_arg_list
+   52                  | arg
+
+   53 arg: type identifier
+
+   54 compound_st: L_BRACE compound_list R_BRACE
+
+   55 compound_list: compound_list var_const_decl_list
+   56              | compound_list stat_list
+   57              | /* empty */
+
+   58 var_const_decl_list: var_const_decl_list var_decl
+   59                    | var_const_decl_list const_decl
+   60                    | var_decl
+   61                    | const_decl
+
+   62 stat_list: stat_list statement
+   63          | statement
+
+   64 statement: compound_st
+   65          | simple_st
+   66          | condition_st
+   67          | while_st
+   68          | for_st
+   69          | jump_st
+   70          | funct_invoc
+
+   71 simple_st: var_ref ASSIGN expr SEMICOLON
+   72          | PRINT var_ref SEMICOLON
+   73          | PRINT expr SEMICOLON
+   74          | READ var_ref SEMICOLON
+
+   75 var_ref: symbol_id
+   76        | symbol_id arr_ref_indice
+
+   77 arr_ref_indice: arr_ref_index arr_ref_indice
+   78               | arr_ref_index
+
+   79 arr_ref_index: L_BRACKET expr R_BRACKET
+
+   80 condition_st: IF L_PAREN bool_expr R_PAREN compound_st
+   81             | IF L_PAREN bool_expr R_PAREN compound_st ELSE compound_st
+
+   82 bool_expr: expr
+
+   83 while_st: WHILE L_PAREN bool_expr R_PAREN compound_st
+   84         | DO compound_st WHILE L_PAREN bool_expr R_PAREN SEMICOLON
+
+   85 jump_st: RETURN expr SEMICOLON
+   86        | BREAK SEMICOLON
+   87        | CONTINUE SEMICOLON
+
+   88 expr: L_PAREN expr R_PAREN
+   89     | expr OR expr
+   90     | expr AND expr
+   91     | expr NOT expr
+   92     | expr LESS expr
+   93     | expr LESS_EQ expr
+   94     | expr EQUAL expr
+   95     | expr GREAT_EQ expr
+   96     | expr GREAT expr
+   97     | expr NOT_EQ expr
+   98     | expr PLUS expr
+   99     | expr MINUS expr
+  100     | expr MULTIPLY expr
+  101     | expr DIVIDE expr
+  102     | expr MOD expr
+  103     | MINUS expr
+  104     | literal_constant
+  105     | var_ref
+  106     | funct_invoc
+
+  107 for_st: FOR L_PAREN for_init SEMICOLON for_control SEMICOLON for_incre R_PAREN compound_st
+
+  108 for_init: nonEmpty_for_init
+  109         | /* empty */
+
+  110 nonEmpty_for_init: nonEmpty_for_init COMMA for_single_entry
+  111                  | for_single_entry
+
+  112 for_incre: nonEmpty_for_incre
+  113          | /* empty */
+
+  114 nonEmpty_for_incre: nonEmpty_for_incre COMMA for_single_entry
+  115                   | for_single_entry
+
+  116 for_control: nonEmpty_for_control
+  117            | /* empty */
+
+  118 nonEmpty_for_control: nonEmpty_for_control COMMA for_control_entry
+  119                     | for_control_entry
+
+  120 for_control_entry: symbol_id ASSIGN expr
+  121                  | symbol_id array_indice ASSIGN init_array
+  122                  | expr
+
+  123 for_single_entry: symbol_id ASSIGN expr
+  124                 | symbol_id array_indice ASSIGN init_array
+  125                 | funct_invoc
+  126                 | expr
+
+  127 funct_invoc: symbol_id L_PAREN expr_list R_PAREN SEMICOLON
+
+  128 expr_list: nonEmpty_expr_list
+  129          | /* empty */
+
+  130 nonEmpty_expr_list: nonEmpty_expr_list COMMA expr
+  131                   | expr
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+VOID (258) 42 48
+CONST (259) 32
+STRING (260) 18
+DOUBLE (261) 16
+FLOAT (262) 17
+BOOL (263) 19
+INT (264) 15
+BOOLEAN (265) 20
+L_PAREN (266) 41 42 46 48 80 81 83 84 88 107 127
+R_PAREN (267) 41 42 46 48 80 81 83 84 88 107 127
+L_BRACKET (268) 24 25 79
+R_BRACKET (269) 24 25 79
+L_BRACE (270) 31 54
+R_BRACE (271) 31 54
+OR (272) 89
+AND (273) 90
+NOT (274) 91
+NOT_EQ (275) 97
+GREAT (276) 96
+GREAT_EQ (277) 95
+EQUAL (278) 94
+LESS_EQ (279) 93
+LESS (280) 92
+MINUS (281) 99 103
+PLUS (282) 98
+MOD (283) 102
+DIVIDE (284) 101
+MULTIPLY (285) 100
+ASSIGN (286) 29 30 35 71 120 121 123 124
+WHILE (287) 83 84
+DO (288) 84
+IF (289) 80 81
+ELSE (290) 81
+FOR (291) 107
+PRINT (292) 72 73
+READ (293) 74
+CONTINUE (294) 87
+BREAK (295) 86
+RETURN (296) 85
+ID (297) 23
+SEMICOLON (298) 14 32 41 42 71 72 73 74 84 85 86 87 107 127
+COMMA (299) 26 33 51 110 114 118 130
+CONS_INTEGER (300) 24 25 36
+CONS_FLOAT (301) 37
+CONS_SCIENTIFIC (302) 38
+CONS_STRING (303) 39
+CONS_BOOL (304) 40
+
+
+Nonterminals, with rules where they appear
+
+$accept (50)
+    on left: 0
+program (51)
+    on left: 1, on right: 0
+decl_and_def_list (52)
+    on left: 2 3 4, on right: 1 2 4
+declaration_list (53)
+    on left: 5 6 7 8 9 10 11 12, on right: 2 5 6 7 8
+var_decl (54)
+    on left: 14, on right: 6 10 58 60
+@1 (55)
+    on left: 13, on right: 14
+type (56)
+    on left: 15 16 17 18 19 20, on right: 14 32 41 46 53
+identifier (57)
+    on left: 21 22, on right: 28 53
+symbol_id (58)
+    on left: 23, on right: 21 22 29 30 35 41 42 46 48 75 76 120 121
+    123 124 127
+array_indice (59)
+    on left: 24 25, on right: 22 24 30 121 124
+var_list (60)
+    on left: 26 27, on right: 14 26
+var_single (61)
+    on left: 28 29 30, on right: 26 27
+init_array (62)
+    on left: 31, on right: 30 121 124
+const_decl (63)
+    on left: 32, on right: 5 9 59 61
+const_list (64)
+    on left: 33 34, on right: 32 33
+const_init (65)
+    on left: 35, on right: 33 34
+literal_constant (66)
+    on left: 36 37 38 39 40, on right: 35 104
+funct_decl (67)
+    on left: 41, on right: 7 11
+proc_decl (68)
+    on left: 42, on right: 8 12
+definition_list (69)
+    on left: 43 44, on right: 3 4 43
+definition (70)
+    on left: 46 48, on right: 43 44
+@2 (71)
+    on left: 45, on right: 46
+@3 (72)
+    on left: 47, on right: 48
+arg_list (73)
+    on left: 49 50, on right: 41 42 46 48
+nonEmpty_arg_list (74)
+    on left: 51 52, on right: 49 51
+arg (75)
+    on left: 53, on right: 51 52
+compound_st (76)
+    on left: 54, on right: 48 64 80 81 83 84 107
+compound_list (77)
+    on left: 55 56 57, on right: 54 55 56
+var_const_decl_list (78)
+    on left: 58 59 60 61, on right: 55 58 59
+stat_list (79)
+    on left: 62 63, on right: 56 62
+statement (80)
+    on left: 64 65 66 67 68 69 70, on right: 62 63
+simple_st (81)
+    on left: 71 72 73 74, on right: 65
+var_ref (82)
+    on left: 75 76, on right: 71 72 74 105
+arr_ref_indice (83)
+    on left: 77 78, on right: 76 77
+arr_ref_index (84)
+    on left: 79, on right: 77 78
+condition_st (85)
+    on left: 80 81, on right: 66
+bool_expr (86)
+    on left: 82, on right: 80 81 83 84
+while_st (87)
+    on left: 83 84, on right: 67
+jump_st (88)
+    on left: 85 86 87, on right: 69
+expr (89)
+    on left: 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104
+    105 106, on right: 29 71 73 79 82 85 88 89 90 91 92 93 94 95 96
+    97 98 99 100 101 102 103 120 122 123 126 130 131
+for_st (90)
+    on left: 107, on right: 68
+for_init (91)
+    on left: 108 109, on right: 107
+nonEmpty_for_init (92)
+    on left: 110 111, on right: 108 110
+for_incre (93)
+    on left: 112 113, on right: 107
+nonEmpty_for_incre (94)
+    on left: 114 115, on right: 112 114
+for_control (95)
+    on left: 116 117, on right: 107
+nonEmpty_for_control (96)
+    on left: 118 119, on right: 116 118
+for_control_entry (97)
+    on left: 120 121 122, on right: 118 119
+for_single_entry (98)
+    on left: 123 124 125 126, on right: 110 111 114 115
+funct_invoc (99)
+    on left: 127, on right: 70 106 125
+expr_list (100)
+    on left: 128 129, on right: 31 127
+nonEmpty_expr_list (101)
+    on left: 130 131, on right: 128 130
+
+
+state 0
+
+    0 $accept: . program $end
+
+    VOID      reduce using rule 47 (@3)
+    $default  reduce using rule 45 (@2)
+
+    program            go to state 1
+    decl_and_def_list  go to state 2
+    definition_list    go to state 3
+    definition         go to state 4
+    @2                 go to state 5
+    @3                 go to state 6
+
+
+state 1
+
+    0 $accept: program . $end
+
+    $end  shift, and go to state 7
+
+
+state 2
+
+    1 program: decl_and_def_list .
+    2 decl_and_def_list: decl_and_def_list . declaration_list
+    4                  | decl_and_def_list . definition_list
+
+    VOID     shift, and go to state 8
+    CONST    shift, and go to state 9
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    VOID      [reduce using rule 47 (@3)]
+    STRING    [reduce using rule 45 (@2)]
+    DOUBLE    [reduce using rule 45 (@2)]
+    FLOAT     [reduce using rule 45 (@2)]
+    BOOL      [reduce using rule 45 (@2)]
+    INT       [reduce using rule 45 (@2)]
+    BOOLEAN   [reduce using rule 45 (@2)]
+    $default  reduce using rule 1 (program)
+
+    declaration_list  go to state 16
+    var_decl          go to state 17
+    type              go to state 18
+    const_decl        go to state 19
+    funct_decl        go to state 20
+    proc_decl         go to state 21
+    definition_list   go to state 22
+    definition        go to state 4
+    @2                go to state 5
+    @3                go to state 6
+
+
+state 3
+
+    3 decl_and_def_list: definition_list .
+   43 definition_list: definition_list . definition
+
+    VOID      reduce using rule 3 (decl_and_def_list)
+    VOID      [reduce using rule 47 (@3)]
+    STRING    reduce using rule 3 (decl_and_def_list)
+    STRING    [reduce using rule 45 (@2)]
+    DOUBLE    reduce using rule 3 (decl_and_def_list)
+    DOUBLE    [reduce using rule 45 (@2)]
+    FLOAT     reduce using rule 3 (decl_and_def_list)
+    FLOAT     [reduce using rule 45 (@2)]
+    BOOL      reduce using rule 3 (decl_and_def_list)
+    BOOL      [reduce using rule 45 (@2)]
+    INT       reduce using rule 3 (decl_and_def_list)
+    INT       [reduce using rule 45 (@2)]
+    BOOLEAN   reduce using rule 3 (decl_and_def_list)
+    BOOLEAN   [reduce using rule 45 (@2)]
+    $default  reduce using rule 3 (decl_and_def_list)
+
+    definition  go to state 23
+    @2          go to state 5
+    @3          go to state 6
+
+
+state 4
+
+   44 definition_list: definition .
+
+    $default  reduce using rule 44 (definition_list)
+
+
+state 5
+
+   46 definition: @2 . type symbol_id L_PAREN arg_list R_PAREN
+
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    type  go to state 24
+
+
+state 6
+
+   48 definition: @3 . VOID symbol_id L_PAREN arg_list R_PAREN compound_st
+
+    VOID  shift, and go to state 25
+
+
+state 7
+
+    0 $accept: program $end .
+
+    $default  accept
+
+
+state 8
+
+   42 proc_decl: VOID . symbol_id L_PAREN arg_list R_PAREN SEMICOLON
+
+    ID  shift, and go to state 26
+
+    symbol_id  go to state 27
+
+
+state 9
+
+   32 const_decl: CONST . type const_list SEMICOLON
+
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    type  go to state 28
+
+
+state 10
+
+   18 type: STRING .
+
+    $default  reduce using rule 18 (type)
+
+
+state 11
+
+   16 type: DOUBLE .
+
+    $default  reduce using rule 16 (type)
+
+
+state 12
+
+   17 type: FLOAT .
+
+    $default  reduce using rule 17 (type)
+
+
+state 13
+
+   19 type: BOOL .
+
+    $default  reduce using rule 19 (type)
+
+
+state 14
+
+   15 type: INT .
+
+    $default  reduce using rule 15 (type)
+
+
+state 15
+
+   20 type: BOOLEAN .
+
+    $default  reduce using rule 20 (type)
+
+
+state 16
+
+    2 decl_and_def_list: decl_and_def_list declaration_list .
+    5 declaration_list: declaration_list . const_decl
+    6                 | declaration_list . var_decl
+    7                 | declaration_list . funct_decl
+    8                 | declaration_list . proc_decl
+
+    VOID     shift, and go to state 8
+    CONST    shift, and go to state 9
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    VOID      [reduce using rule 2 (decl_and_def_list)]
+    CONST     [reduce using rule 2 (decl_and_def_list)]
+    STRING    [reduce using rule 2 (decl_and_def_list)]
+    DOUBLE    [reduce using rule 2 (decl_and_def_list)]
+    FLOAT     [reduce using rule 2 (decl_and_def_list)]
+    BOOL      [reduce using rule 2 (decl_and_def_list)]
+    INT       [reduce using rule 2 (decl_and_def_list)]
+    BOOLEAN   [reduce using rule 2 (decl_and_def_list)]
+    $default  reduce using rule 2 (decl_and_def_list)
+
+    var_decl    go to state 29
+    type        go to state 18
+    const_decl  go to state 30
+    funct_decl  go to state 31
+    proc_decl   go to state 32
+
+
+state 17
+
+   10 declaration_list: var_decl .
+
+    $default  reduce using rule 10 (declaration_list)
+
+
+state 18
+
+   14 var_decl: type . var_list @1 SEMICOLON
+   41 funct_decl: type . symbol_id L_PAREN arg_list R_PAREN SEMICOLON
+
+    ID  shift, and go to state 26
+
+    identifier  go to state 33
+    symbol_id   go to state 34
+    var_list    go to state 35
+    var_single  go to state 36
+
+
+state 19
+
+    9 declaration_list: const_decl .
+
+    $default  reduce using rule 9 (declaration_list)
+
+
+state 20
+
+   11 declaration_list: funct_decl .
+
+    $default  reduce using rule 11 (declaration_list)
+
+
+state 21
+
+   12 declaration_list: proc_decl .
+
+    $default  reduce using rule 12 (declaration_list)
+
+
+state 22
+
+    4 decl_and_def_list: decl_and_def_list definition_list .
+   43 definition_list: definition_list . definition
+
+    VOID      reduce using rule 4 (decl_and_def_list)
+    VOID      [reduce using rule 47 (@3)]
+    STRING    reduce using rule 4 (decl_and_def_list)
+    STRING    [reduce using rule 45 (@2)]
+    DOUBLE    reduce using rule 4 (decl_and_def_list)
+    DOUBLE    [reduce using rule 45 (@2)]
+    FLOAT     reduce using rule 4 (decl_and_def_list)
+    FLOAT     [reduce using rule 45 (@2)]
+    BOOL      reduce using rule 4 (decl_and_def_list)
+    BOOL      [reduce using rule 45 (@2)]
+    INT       reduce using rule 4 (decl_and_def_list)
+    INT       [reduce using rule 45 (@2)]
+    BOOLEAN   reduce using rule 4 (decl_and_def_list)
+    BOOLEAN   [reduce using rule 45 (@2)]
+    $default  reduce using rule 4 (decl_and_def_list)
+
+    definition  go to state 23
+    @2          go to state 5
+    @3          go to state 6
+
+
+state 23
+
+   43 definition_list: definition_list definition .
+
+    $default  reduce using rule 43 (definition_list)
+
+
+state 24
+
+   46 definition: @2 type . symbol_id L_PAREN arg_list R_PAREN
+
+    ID  shift, and go to state 26
+
+    symbol_id  go to state 37
+
+
+state 25
+
+   48 definition: @3 VOID . symbol_id L_PAREN arg_list R_PAREN compound_st
+
+    ID  shift, and go to state 26
+
+    symbol_id  go to state 38
+
+
+state 26
+
+   23 symbol_id: ID .
+
+    $default  reduce using rule 23 (symbol_id)
+
+
+state 27
+
+   42 proc_decl: VOID symbol_id . L_PAREN arg_list R_PAREN SEMICOLON
+
+    L_PAREN  shift, and go to state 39
+
+
+state 28
+
+   32 const_decl: CONST type . const_list SEMICOLON
+
+    ID  shift, and go to state 26
+
+    symbol_id   go to state 40
+    const_list  go to state 41
+    const_init  go to state 42
+
+
+state 29
+
+    6 declaration_list: declaration_list var_decl .
+
+    $default  reduce using rule 6 (declaration_list)
+
+
+state 30
+
+    5 declaration_list: declaration_list const_decl .
+
+    $default  reduce using rule 5 (declaration_list)
+
+
+state 31
+
+    7 declaration_list: declaration_list funct_decl .
+
+    $default  reduce using rule 7 (declaration_list)
+
+
+state 32
+
+    8 declaration_list: declaration_list proc_decl .
+
+    $default  reduce using rule 8 (declaration_list)
+
+
+state 33
+
+   28 var_single: identifier .
+
+    $default  reduce using rule 28 (var_single)
+
+
+state 34
+
+   21 identifier: symbol_id .
+   22           | symbol_id . array_indice
+   29 var_single: symbol_id . ASSIGN expr
+   30           | symbol_id . array_indice ASSIGN init_array
+   41 funct_decl: type symbol_id . L_PAREN arg_list R_PAREN SEMICOLON
+
+    L_PAREN    shift, and go to state 43
+    L_BRACKET  shift, and go to state 44
+    ASSIGN     shift, and go to state 45
+
+    $default  reduce using rule 21 (identifier)
+
+    array_indice  go to state 46
+
+
+state 35
+
+   14 var_decl: type var_list . @1 SEMICOLON
+   26 var_list: var_list . COMMA var_single
+
+    COMMA  shift, and go to state 47
+
+    $default  reduce using rule 13 (@1)
+
+    @1  go to state 48
+
+
+state 36
+
+   27 var_list: var_single .
+
+    $default  reduce using rule 27 (var_list)
+
+
+state 37
+
+   46 definition: @2 type symbol_id . L_PAREN arg_list R_PAREN
+
+    L_PAREN  shift, and go to state 49
+
+
+state 38
+
+   48 definition: @3 VOID symbol_id . L_PAREN arg_list R_PAREN compound_st
+
+    L_PAREN  shift, and go to state 50
+
+
+state 39
+
+   42 proc_decl: VOID symbol_id L_PAREN . arg_list R_PAREN SEMICOLON
+
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    $default  reduce using rule 50 (arg_list)
+
+    type               go to state 51
+    arg_list           go to state 52
+    nonEmpty_arg_list  go to state 53
+    arg                go to state 54
+
+
+state 40
+
+   35 const_init: symbol_id . ASSIGN literal_constant
+
+    ASSIGN  shift, and go to state 55
+
+
+state 41
+
+   32 const_decl: CONST type const_list . SEMICOLON
+
+    SEMICOLON  shift, and go to state 56
+
+
+state 42
+
+   33 const_list: const_init . COMMA const_list
+   34           | const_init .
+
+    COMMA  shift, and go to state 57
+
+    $default  reduce using rule 34 (const_list)
+
+
+state 43
+
+   41 funct_decl: type symbol_id L_PAREN . arg_list R_PAREN SEMICOLON
+
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    $default  reduce using rule 50 (arg_list)
+
+    type               go to state 51
+    arg_list           go to state 58
+    nonEmpty_arg_list  go to state 53
+    arg                go to state 54
+
+
+state 44
+
+   25 array_indice: L_BRACKET . CONS_INTEGER R_BRACKET
+
+    CONS_INTEGER  shift, and go to state 59
+
+
+state 45
+
+   29 var_single: symbol_id ASSIGN . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 70
+    funct_invoc       go to state 71
+
+
+state 46
+
+   22 identifier: symbol_id array_indice .
+   24 array_indice: array_indice . L_BRACKET CONS_INTEGER R_BRACKET
+   30 var_single: symbol_id array_indice . ASSIGN init_array
+
+    L_BRACKET  shift, and go to state 72
+    ASSIGN     shift, and go to state 73
+
+    $default  reduce using rule 22 (identifier)
+
+
+state 47
+
+   26 var_list: var_list COMMA . var_single
+
+    ID  shift, and go to state 26
+
+    identifier  go to state 33
+    symbol_id   go to state 74
+    var_single  go to state 75
+
+
+state 48
+
+   14 var_decl: type var_list @1 . SEMICOLON
+
+    SEMICOLON  shift, and go to state 76
+
+
+state 49
+
+   46 definition: @2 type symbol_id L_PAREN . arg_list R_PAREN
+
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    $default  reduce using rule 50 (arg_list)
+
+    type               go to state 51
+    arg_list           go to state 77
+    nonEmpty_arg_list  go to state 53
+    arg                go to state 54
+
+
+state 50
+
+   48 definition: @3 VOID symbol_id L_PAREN . arg_list R_PAREN compound_st
+
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    $default  reduce using rule 50 (arg_list)
+
+    type               go to state 51
+    arg_list           go to state 78
+    nonEmpty_arg_list  go to state 53
+    arg                go to state 54
+
+
+state 51
+
+   53 arg: type . identifier
+
+    ID  shift, and go to state 26
+
+    identifier  go to state 79
+    symbol_id   go to state 80
+
+
+state 52
+
+   42 proc_decl: VOID symbol_id L_PAREN arg_list . R_PAREN SEMICOLON
+
+    R_PAREN  shift, and go to state 81
+
+
+state 53
+
+   49 arg_list: nonEmpty_arg_list .
+
+    $default  reduce using rule 49 (arg_list)
+
+
+state 54
+
+   51 nonEmpty_arg_list: arg . COMMA nonEmpty_arg_list
+   52                  | arg .
+
+    COMMA  shift, and go to state 82
+
+    $default  reduce using rule 52 (nonEmpty_arg_list)
+
+
+state 55
+
+   35 const_init: symbol_id ASSIGN . literal_constant
+
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    literal_constant  go to state 83
+
+
+state 56
+
+   32 const_decl: CONST type const_list SEMICOLON .
+
+    $default  reduce using rule 32 (const_decl)
+
+
+state 57
+
+   33 const_list: const_init COMMA . const_list
+
+    ID  shift, and go to state 26
+
+    symbol_id   go to state 40
+    const_list  go to state 84
+    const_init  go to state 42
+
+
+state 58
+
+   41 funct_decl: type symbol_id L_PAREN arg_list . R_PAREN SEMICOLON
+
+    R_PAREN  shift, and go to state 85
+
+
+state 59
+
+   25 array_indice: L_BRACKET CONS_INTEGER . R_BRACKET
+
+    R_BRACKET  shift, and go to state 86
+
+
+state 60
+
+   88 expr: L_PAREN . expr R_PAREN
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 87
+    funct_invoc       go to state 71
+
+
+state 61
+
+  103 expr: MINUS . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 88
+    funct_invoc       go to state 71
+
+
+state 62
+
+   36 literal_constant: CONS_INTEGER .
+
+    $default  reduce using rule 36 (literal_constant)
+
+
+state 63
+
+   37 literal_constant: CONS_FLOAT .
+
+    $default  reduce using rule 37 (literal_constant)
+
+
+state 64
+
+   38 literal_constant: CONS_SCIENTIFIC .
+
+    $default  reduce using rule 38 (literal_constant)
+
+
+state 65
+
+   39 literal_constant: CONS_STRING .
+
+    $default  reduce using rule 39 (literal_constant)
+
+
+state 66
+
+   40 literal_constant: CONS_BOOL .
+
+    $default  reduce using rule 40 (literal_constant)
+
+
+state 67
+
+   75 var_ref: symbol_id .
+   76        | symbol_id . arr_ref_indice
+  127 funct_invoc: symbol_id . L_PAREN expr_list R_PAREN SEMICOLON
+
+    L_PAREN    shift, and go to state 89
+    L_BRACKET  shift, and go to state 90
+
+    $default  reduce using rule 75 (var_ref)
+
+    arr_ref_indice  go to state 91
+    arr_ref_index   go to state 92
+
+
+state 68
+
+  104 expr: literal_constant .
+
+    $default  reduce using rule 104 (expr)
+
+
+state 69
+
+  105 expr: var_ref .
+
+    $default  reduce using rule 105 (expr)
+
+
+state 70
+
+   29 var_single: symbol_id ASSIGN expr .
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    $default  reduce using rule 29 (var_single)
+
+
+state 71
+
+  106 expr: funct_invoc .
+
+    $default  reduce using rule 106 (expr)
+
+
+state 72
+
+   24 array_indice: array_indice L_BRACKET . CONS_INTEGER R_BRACKET
+
+    CONS_INTEGER  shift, and go to state 107
+
+
+state 73
+
+   30 var_single: symbol_id array_indice ASSIGN . init_array
+
+    L_BRACE  shift, and go to state 108
+
+    init_array  go to state 109
+
+
+state 74
+
+   21 identifier: symbol_id .
+   22           | symbol_id . array_indice
+   29 var_single: symbol_id . ASSIGN expr
+   30           | symbol_id . array_indice ASSIGN init_array
+
+    L_BRACKET  shift, and go to state 44
+    ASSIGN     shift, and go to state 45
+
+    $default  reduce using rule 21 (identifier)
+
+    array_indice  go to state 46
+
+
+state 75
+
+   26 var_list: var_list COMMA var_single .
+
+    $default  reduce using rule 26 (var_list)
+
+
+state 76
+
+   14 var_decl: type var_list @1 SEMICOLON .
+
+    $default  reduce using rule 14 (var_decl)
+
+
+state 77
+
+   46 definition: @2 type symbol_id L_PAREN arg_list . R_PAREN
+
+    R_PAREN  shift, and go to state 110
+
+
+state 78
+
+   48 definition: @3 VOID symbol_id L_PAREN arg_list . R_PAREN compound_st
+
+    R_PAREN  shift, and go to state 111
+
+
+state 79
+
+   53 arg: type identifier .
+
+    $default  reduce using rule 53 (arg)
+
+
+state 80
+
+   21 identifier: symbol_id .
+   22           | symbol_id . array_indice
+
+    L_BRACKET  shift, and go to state 44
+
+    $default  reduce using rule 21 (identifier)
+
+    array_indice  go to state 112
+
+
+state 81
+
+   42 proc_decl: VOID symbol_id L_PAREN arg_list R_PAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 113
+
+
+state 82
+
+   51 nonEmpty_arg_list: arg COMMA . nonEmpty_arg_list
+
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    type               go to state 51
+    nonEmpty_arg_list  go to state 114
+    arg                go to state 54
+
+
+state 83
+
+   35 const_init: symbol_id ASSIGN literal_constant .
+
+    $default  reduce using rule 35 (const_init)
+
+
+state 84
+
+   33 const_list: const_init COMMA const_list .
+
+    $default  reduce using rule 33 (const_list)
+
+
+state 85
+
+   41 funct_decl: type symbol_id L_PAREN arg_list R_PAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 115
+
+
+state 86
+
+   25 array_indice: L_BRACKET CONS_INTEGER R_BRACKET .
+
+    $default  reduce using rule 25 (array_indice)
+
+
+state 87
+
+   88 expr: L_PAREN expr . R_PAREN
+   89     | expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    R_PAREN   shift, and go to state 116
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+
+state 88
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+  103     | MINUS expr .
+
+    NOT  shift, and go to state 95
+
+    NOT       [reduce using rule 103 (expr)]
+    $default  reduce using rule 103 (expr)
+
+
+state 89
+
+  127 funct_invoc: symbol_id L_PAREN . expr_list R_PAREN SEMICOLON
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    $default  reduce using rule 129 (expr_list)
+
+    symbol_id           go to state 67
+    literal_constant    go to state 68
+    var_ref             go to state 69
+    expr                go to state 117
+    funct_invoc         go to state 71
+    expr_list           go to state 118
+    nonEmpty_expr_list  go to state 119
+
+
+state 90
+
+   79 arr_ref_index: L_BRACKET . expr R_BRACKET
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 120
+    funct_invoc       go to state 71
+
+
+state 91
+
+   76 var_ref: symbol_id arr_ref_indice .
+
+    $default  reduce using rule 76 (var_ref)
+
+
+state 92
+
+   77 arr_ref_indice: arr_ref_index . arr_ref_indice
+   78               | arr_ref_index .
+
+    L_BRACKET  shift, and go to state 90
+
+    $default  reduce using rule 78 (arr_ref_indice)
+
+    arr_ref_indice  go to state 121
+    arr_ref_index   go to state 92
+
+
+state 93
+
+   89 expr: expr OR . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 122
+    funct_invoc       go to state 71
+
+
+state 94
+
+   90 expr: expr AND . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 123
+    funct_invoc       go to state 71
+
+
+state 95
+
+   91 expr: expr NOT . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 124
+    funct_invoc       go to state 71
+
+
+state 96
+
+   97 expr: expr NOT_EQ . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 125
+    funct_invoc       go to state 71
+
+
+state 97
+
+   96 expr: expr GREAT . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 126
+    funct_invoc       go to state 71
+
+
+state 98
+
+   95 expr: expr GREAT_EQ . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 127
+    funct_invoc       go to state 71
+
+
+state 99
+
+   94 expr: expr EQUAL . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 128
+    funct_invoc       go to state 71
+
+
+state 100
+
+   93 expr: expr LESS_EQ . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 129
+    funct_invoc       go to state 71
+
+
+state 101
+
+   92 expr: expr LESS . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 130
+    funct_invoc       go to state 71
+
+
+state 102
+
+   99 expr: expr MINUS . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 131
+    funct_invoc       go to state 71
+
+
+state 103
+
+   98 expr: expr PLUS . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 132
+    funct_invoc       go to state 71
+
+
+state 104
+
+  102 expr: expr MOD . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 133
+    funct_invoc       go to state 71
+
+
+state 105
+
+  101 expr: expr DIVIDE . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 134
+    funct_invoc       go to state 71
+
+
+state 106
+
+  100 expr: expr MULTIPLY . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 135
+    funct_invoc       go to state 71
+
+
+state 107
+
+   24 array_indice: array_indice L_BRACKET CONS_INTEGER . R_BRACKET
+
+    R_BRACKET  shift, and go to state 136
+
+
+state 108
+
+   31 init_array: L_BRACE . expr_list R_BRACE
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    $default  reduce using rule 129 (expr_list)
+
+    symbol_id           go to state 67
+    literal_constant    go to state 68
+    var_ref             go to state 69
+    expr                go to state 117
+    funct_invoc         go to state 71
+    expr_list           go to state 137
+    nonEmpty_expr_list  go to state 119
+
+
+state 109
+
+   30 var_single: symbol_id array_indice ASSIGN init_array .
+
+    $default  reduce using rule 30 (var_single)
+
+
+state 110
+
+   46 definition: @2 type symbol_id L_PAREN arg_list R_PAREN .
+
+    $default  reduce using rule 46 (definition)
+
+
+state 111
+
+   48 definition: @3 VOID symbol_id L_PAREN arg_list R_PAREN . compound_st
+
+    L_BRACE  shift, and go to state 138
+
+    compound_st  go to state 139
+
+
+state 112
+
+   22 identifier: symbol_id array_indice .
+   24 array_indice: array_indice . L_BRACKET CONS_INTEGER R_BRACKET
+
+    L_BRACKET  shift, and go to state 72
+
+    $default  reduce using rule 22 (identifier)
+
+
+state 113
+
+   42 proc_decl: VOID symbol_id L_PAREN arg_list R_PAREN SEMICOLON .
+
+    $default  reduce using rule 42 (proc_decl)
+
+
+state 114
+
+   51 nonEmpty_arg_list: arg COMMA nonEmpty_arg_list .
+
+    $default  reduce using rule 51 (nonEmpty_arg_list)
+
+
+state 115
+
+   41 funct_decl: type symbol_id L_PAREN arg_list R_PAREN SEMICOLON .
+
+    $default  reduce using rule 41 (funct_decl)
+
+
+state 116
+
+   88 expr: L_PAREN expr R_PAREN .
+
+    $default  reduce using rule 88 (expr)
+
+
+state 117
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+  131 nonEmpty_expr_list: expr .
+
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    $default  reduce using rule 131 (nonEmpty_expr_list)
+
+
+state 118
+
+  127 funct_invoc: symbol_id L_PAREN expr_list . R_PAREN SEMICOLON
+
+    R_PAREN  shift, and go to state 140
+
+
+state 119
+
+  128 expr_list: nonEmpty_expr_list .
+  130 nonEmpty_expr_list: nonEmpty_expr_list . COMMA expr
+
+    COMMA  shift, and go to state 141
+
+    $default  reduce using rule 128 (expr_list)
+
+
+state 120
+
+   79 arr_ref_index: L_BRACKET expr . R_BRACKET
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    R_BRACKET  shift, and go to state 142
+    OR         shift, and go to state 93
+    AND        shift, and go to state 94
+    NOT        shift, and go to state 95
+    NOT_EQ     shift, and go to state 96
+    GREAT      shift, and go to state 97
+    GREAT_EQ   shift, and go to state 98
+    EQUAL      shift, and go to state 99
+    LESS_EQ    shift, and go to state 100
+    LESS       shift, and go to state 101
+    MINUS      shift, and go to state 102
+    PLUS       shift, and go to state 103
+    MOD        shift, and go to state 104
+    DIVIDE     shift, and go to state 105
+    MULTIPLY   shift, and go to state 106
+
+
+state 121
+
+   77 arr_ref_indice: arr_ref_index arr_ref_indice .
+
+    $default  reduce using rule 77 (arr_ref_indice)
+
+
+state 122
+
+   89 expr: expr . OR expr
+   89     | expr OR expr .
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 89 (expr)]
+    $default  reduce using rule 89 (expr)
+
+
+state 123
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   90     | expr AND expr .
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 90 (expr)]
+    $default  reduce using rule 90 (expr)
+
+
+state 124
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   91     | expr NOT expr .
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    OR        [reduce using rule 91 (expr)]
+    AND       [reduce using rule 91 (expr)]
+    NOT       [reduce using rule 91 (expr)]
+    NOT_EQ    [reduce using rule 91 (expr)]
+    GREAT     [reduce using rule 91 (expr)]
+    GREAT_EQ  [reduce using rule 91 (expr)]
+    EQUAL     [reduce using rule 91 (expr)]
+    LESS_EQ   [reduce using rule 91 (expr)]
+    LESS      [reduce using rule 91 (expr)]
+    MINUS     [reduce using rule 91 (expr)]
+    PLUS      [reduce using rule 91 (expr)]
+    MOD       [reduce using rule 91 (expr)]
+    DIVIDE    [reduce using rule 91 (expr)]
+    MULTIPLY  [reduce using rule 91 (expr)]
+    $default  reduce using rule 91 (expr)
+
+
+state 125
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   97     | expr NOT_EQ expr .
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT       shift, and go to state 95
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 97 (expr)]
+    $default  reduce using rule 97 (expr)
+
+
+state 126
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   96     | expr GREAT expr .
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT       shift, and go to state 95
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 96 (expr)]
+    $default  reduce using rule 96 (expr)
+
+
+state 127
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   95     | expr GREAT_EQ expr .
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT       shift, and go to state 95
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 95 (expr)]
+    $default  reduce using rule 95 (expr)
+
+
+state 128
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   94     | expr EQUAL expr .
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT       shift, and go to state 95
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 94 (expr)]
+    $default  reduce using rule 94 (expr)
+
+
+state 129
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   93     | expr LESS_EQ expr .
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT       shift, and go to state 95
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 93 (expr)]
+    $default  reduce using rule 93 (expr)
+
+
+state 130
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   92     | expr LESS expr .
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT       shift, and go to state 95
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 92 (expr)]
+    $default  reduce using rule 92 (expr)
+
+
+state 131
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+   99     | expr MINUS expr .
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT       shift, and go to state 95
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 99 (expr)]
+    $default  reduce using rule 99 (expr)
+
+
+state 132
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   98     | expr PLUS expr .
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT       shift, and go to state 95
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    NOT       [reduce using rule 98 (expr)]
+    $default  reduce using rule 98 (expr)
+
+
+state 133
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+  102     | expr MOD expr .
+
+    NOT  shift, and go to state 95
+
+    NOT       [reduce using rule 102 (expr)]
+    $default  reduce using rule 102 (expr)
+
+
+state 134
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  101     | expr DIVIDE expr .
+  102     | expr . MOD expr
+
+    NOT  shift, and go to state 95
+
+    NOT       [reduce using rule 101 (expr)]
+    $default  reduce using rule 101 (expr)
+
+
+state 135
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  100     | expr MULTIPLY expr .
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    NOT  shift, and go to state 95
+
+    NOT       [reduce using rule 100 (expr)]
+    $default  reduce using rule 100 (expr)
+
+
+state 136
+
+   24 array_indice: array_indice L_BRACKET CONS_INTEGER R_BRACKET .
+
+    $default  reduce using rule 24 (array_indice)
+
+
+state 137
+
+   31 init_array: L_BRACE expr_list . R_BRACE
+
+    R_BRACE  shift, and go to state 143
+
+
+state 138
+
+   54 compound_st: L_BRACE . compound_list R_BRACE
+
+    $default  reduce using rule 57 (compound_list)
+
+    compound_list  go to state 144
+
+
+state 139
+
+   48 definition: @3 VOID symbol_id L_PAREN arg_list R_PAREN compound_st .
+
+    $default  reduce using rule 48 (definition)
+
+
+state 140
+
+  127 funct_invoc: symbol_id L_PAREN expr_list R_PAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 145
+
+
+state 141
+
+  130 nonEmpty_expr_list: nonEmpty_expr_list COMMA . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 146
+    funct_invoc       go to state 71
+
+
+state 142
+
+   79 arr_ref_index: L_BRACKET expr R_BRACKET .
+
+    $default  reduce using rule 79 (arr_ref_index)
+
+
+state 143
+
+   31 init_array: L_BRACE expr_list R_BRACE .
+
+    $default  reduce using rule 31 (init_array)
+
+
+state 144
+
+   54 compound_st: L_BRACE compound_list . R_BRACE
+   55 compound_list: compound_list . var_const_decl_list
+   56              | compound_list . stat_list
+
+    CONST     shift, and go to state 9
+    STRING    shift, and go to state 10
+    DOUBLE    shift, and go to state 11
+    FLOAT     shift, and go to state 12
+    BOOL      shift, and go to state 13
+    INT       shift, and go to state 14
+    BOOLEAN   shift, and go to state 15
+    L_BRACE   shift, and go to state 138
+    R_BRACE   shift, and go to state 147
+    WHILE     shift, and go to state 148
+    DO        shift, and go to state 149
+    IF        shift, and go to state 150
+    FOR       shift, and go to state 151
+    PRINT     shift, and go to state 152
+    READ      shift, and go to state 153
+    CONTINUE  shift, and go to state 154
+    BREAK     shift, and go to state 155
+    RETURN    shift, and go to state 156
+    ID        shift, and go to state 26
+
+    var_decl             go to state 157
+    type                 go to state 158
+    symbol_id            go to state 67
+    const_decl           go to state 159
+    compound_st          go to state 160
+    var_const_decl_list  go to state 161
+    stat_list            go to state 162
+    statement            go to state 163
+    simple_st            go to state 164
+    var_ref              go to state 165
+    condition_st         go to state 166
+    while_st             go to state 167
+    jump_st              go to state 168
+    for_st               go to state 169
+    funct_invoc          go to state 170
+
+
+state 145
+
+  127 funct_invoc: symbol_id L_PAREN expr_list R_PAREN SEMICOLON .
+
+    $default  reduce using rule 127 (funct_invoc)
+
+
+state 146
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+  130 nonEmpty_expr_list: nonEmpty_expr_list COMMA expr .
+
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    $default  reduce using rule 130 (nonEmpty_expr_list)
+
+
+state 147
+
+   54 compound_st: L_BRACE compound_list R_BRACE .
+
+    $default  reduce using rule 54 (compound_st)
+
+
+state 148
+
+   83 while_st: WHILE . L_PAREN bool_expr R_PAREN compound_st
+
+    L_PAREN  shift, and go to state 171
+
+
+state 149
+
+   84 while_st: DO . compound_st WHILE L_PAREN bool_expr R_PAREN SEMICOLON
+
+    L_BRACE  shift, and go to state 138
+
+    compound_st  go to state 172
+
+
+state 150
+
+   80 condition_st: IF . L_PAREN bool_expr R_PAREN compound_st
+   81             | IF . L_PAREN bool_expr R_PAREN compound_st ELSE compound_st
+
+    L_PAREN  shift, and go to state 173
+
+
+state 151
+
+  107 for_st: FOR . L_PAREN for_init SEMICOLON for_control SEMICOLON for_incre R_PAREN compound_st
+
+    L_PAREN  shift, and go to state 174
+
+
+state 152
+
+   72 simple_st: PRINT . var_ref SEMICOLON
+   73          | PRINT . expr SEMICOLON
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 175
+    expr              go to state 176
+    funct_invoc       go to state 71
+
+
+state 153
+
+   74 simple_st: READ . var_ref SEMICOLON
+
+    ID  shift, and go to state 26
+
+    symbol_id  go to state 177
+    var_ref    go to state 178
+
+
+state 154
+
+   87 jump_st: CONTINUE . SEMICOLON
+
+    SEMICOLON  shift, and go to state 179
+
+
+state 155
+
+   86 jump_st: BREAK . SEMICOLON
+
+    SEMICOLON  shift, and go to state 180
+
+
+state 156
+
+   85 jump_st: RETURN . expr SEMICOLON
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 181
+    funct_invoc       go to state 71
+
+
+state 157
+
+   60 var_const_decl_list: var_decl .
+
+    $default  reduce using rule 60 (var_const_decl_list)
+
+
+state 158
+
+   14 var_decl: type . var_list @1 SEMICOLON
+
+    ID  shift, and go to state 26
+
+    identifier  go to state 33
+    symbol_id   go to state 74
+    var_list    go to state 35
+    var_single  go to state 36
+
+
+state 159
+
+   61 var_const_decl_list: const_decl .
+
+    $default  reduce using rule 61 (var_const_decl_list)
+
+
+state 160
+
+   64 statement: compound_st .
+
+    $default  reduce using rule 64 (statement)
+
+
+state 161
+
+   55 compound_list: compound_list var_const_decl_list .
+   58 var_const_decl_list: var_const_decl_list . var_decl
+   59                    | var_const_decl_list . const_decl
+
+    CONST    shift, and go to state 9
+    STRING   shift, and go to state 10
+    DOUBLE   shift, and go to state 11
+    FLOAT    shift, and go to state 12
+    BOOL     shift, and go to state 13
+    INT      shift, and go to state 14
+    BOOLEAN  shift, and go to state 15
+
+    CONST     [reduce using rule 55 (compound_list)]
+    STRING    [reduce using rule 55 (compound_list)]
+    DOUBLE    [reduce using rule 55 (compound_list)]
+    FLOAT     [reduce using rule 55 (compound_list)]
+    BOOL      [reduce using rule 55 (compound_list)]
+    INT       [reduce using rule 55 (compound_list)]
+    BOOLEAN   [reduce using rule 55 (compound_list)]
+    $default  reduce using rule 55 (compound_list)
+
+    var_decl    go to state 182
+    type        go to state 158
+    const_decl  go to state 183
+
+
+state 162
+
+   56 compound_list: compound_list stat_list .
+   62 stat_list: stat_list . statement
+
+    L_BRACE   shift, and go to state 138
+    WHILE     shift, and go to state 148
+    DO        shift, and go to state 149
+    IF        shift, and go to state 150
+    FOR       shift, and go to state 151
+    PRINT     shift, and go to state 152
+    READ      shift, and go to state 153
+    CONTINUE  shift, and go to state 154
+    BREAK     shift, and go to state 155
+    RETURN    shift, and go to state 156
+    ID        shift, and go to state 26
+
+    L_BRACE   [reduce using rule 56 (compound_list)]
+    WHILE     [reduce using rule 56 (compound_list)]
+    DO        [reduce using rule 56 (compound_list)]
+    IF        [reduce using rule 56 (compound_list)]
+    FOR       [reduce using rule 56 (compound_list)]
+    PRINT     [reduce using rule 56 (compound_list)]
+    READ      [reduce using rule 56 (compound_list)]
+    CONTINUE  [reduce using rule 56 (compound_list)]
+    BREAK     [reduce using rule 56 (compound_list)]
+    RETURN    [reduce using rule 56 (compound_list)]
+    ID        [reduce using rule 56 (compound_list)]
+    $default  reduce using rule 56 (compound_list)
+
+    symbol_id     go to state 67
+    compound_st   go to state 160
+    statement     go to state 184
+    simple_st     go to state 164
+    var_ref       go to state 165
+    condition_st  go to state 166
+    while_st      go to state 167
+    jump_st       go to state 168
+    for_st        go to state 169
+    funct_invoc   go to state 170
+
+
+state 163
+
+   63 stat_list: statement .
+
+    $default  reduce using rule 63 (stat_list)
+
+
+state 164
+
+   65 statement: simple_st .
+
+    $default  reduce using rule 65 (statement)
+
+
+state 165
+
+   71 simple_st: var_ref . ASSIGN expr SEMICOLON
+
+    ASSIGN  shift, and go to state 185
+
+
+state 166
+
+   66 statement: condition_st .
+
+    $default  reduce using rule 66 (statement)
+
+
+state 167
+
+   67 statement: while_st .
+
+    $default  reduce using rule 67 (statement)
+
+
+state 168
+
+   69 statement: jump_st .
+
+    $default  reduce using rule 69 (statement)
+
+
+state 169
+
+   68 statement: for_st .
+
+    $default  reduce using rule 68 (statement)
+
+
+state 170
+
+   70 statement: funct_invoc .
+
+    $default  reduce using rule 70 (statement)
+
+
+state 171
+
+   83 while_st: WHILE L_PAREN . bool_expr R_PAREN compound_st
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    bool_expr         go to state 186
+    expr              go to state 187
+    funct_invoc       go to state 71
+
+
+state 172
+
+   84 while_st: DO compound_st . WHILE L_PAREN bool_expr R_PAREN SEMICOLON
+
+    WHILE  shift, and go to state 188
+
+
+state 173
+
+   80 condition_st: IF L_PAREN . bool_expr R_PAREN compound_st
+   81             | IF L_PAREN . bool_expr R_PAREN compound_st ELSE compound_st
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    bool_expr         go to state 189
+    expr              go to state 187
+    funct_invoc       go to state 71
+
+
+state 174
+
+  107 for_st: FOR L_PAREN . for_init SEMICOLON for_control SEMICOLON for_incre R_PAREN compound_st
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    $default  reduce using rule 109 (for_init)
+
+    symbol_id          go to state 190
+    literal_constant   go to state 68
+    var_ref            go to state 69
+    expr               go to state 191
+    for_init           go to state 192
+    nonEmpty_for_init  go to state 193
+    for_single_entry   go to state 194
+    funct_invoc        go to state 195
+
+
+state 175
+
+   72 simple_st: PRINT var_ref . SEMICOLON
+  105 expr: var_ref .
+
+    SEMICOLON  shift, and go to state 196
+
+    SEMICOLON  [reduce using rule 105 (expr)]
+    $default   reduce using rule 105 (expr)
+
+
+state 176
+
+   73 simple_st: PRINT expr . SEMICOLON
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    OR         shift, and go to state 93
+    AND        shift, and go to state 94
+    NOT        shift, and go to state 95
+    NOT_EQ     shift, and go to state 96
+    GREAT      shift, and go to state 97
+    GREAT_EQ   shift, and go to state 98
+    EQUAL      shift, and go to state 99
+    LESS_EQ    shift, and go to state 100
+    LESS       shift, and go to state 101
+    MINUS      shift, and go to state 102
+    PLUS       shift, and go to state 103
+    MOD        shift, and go to state 104
+    DIVIDE     shift, and go to state 105
+    MULTIPLY   shift, and go to state 106
+    SEMICOLON  shift, and go to state 197
+
+
+state 177
+
+   75 var_ref: symbol_id .
+   76        | symbol_id . arr_ref_indice
+
+    L_BRACKET  shift, and go to state 90
+
+    $default  reduce using rule 75 (var_ref)
+
+    arr_ref_indice  go to state 91
+    arr_ref_index   go to state 92
+
+
+state 178
+
+   74 simple_st: READ var_ref . SEMICOLON
+
+    SEMICOLON  shift, and go to state 198
+
+
+state 179
+
+   87 jump_st: CONTINUE SEMICOLON .
+
+    $default  reduce using rule 87 (jump_st)
+
+
+state 180
+
+   86 jump_st: BREAK SEMICOLON .
+
+    $default  reduce using rule 86 (jump_st)
+
+
+state 181
+
+   85 jump_st: RETURN expr . SEMICOLON
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    OR         shift, and go to state 93
+    AND        shift, and go to state 94
+    NOT        shift, and go to state 95
+    NOT_EQ     shift, and go to state 96
+    GREAT      shift, and go to state 97
+    GREAT_EQ   shift, and go to state 98
+    EQUAL      shift, and go to state 99
+    LESS_EQ    shift, and go to state 100
+    LESS       shift, and go to state 101
+    MINUS      shift, and go to state 102
+    PLUS       shift, and go to state 103
+    MOD        shift, and go to state 104
+    DIVIDE     shift, and go to state 105
+    MULTIPLY   shift, and go to state 106
+    SEMICOLON  shift, and go to state 199
+
+
+state 182
+
+   58 var_const_decl_list: var_const_decl_list var_decl .
+
+    $default  reduce using rule 58 (var_const_decl_list)
+
+
+state 183
+
+   59 var_const_decl_list: var_const_decl_list const_decl .
+
+    $default  reduce using rule 59 (var_const_decl_list)
+
+
+state 184
+
+   62 stat_list: stat_list statement .
+
+    $default  reduce using rule 62 (stat_list)
+
+
+state 185
+
+   71 simple_st: var_ref ASSIGN . expr SEMICOLON
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 200
+    funct_invoc       go to state 71
+
+
+state 186
+
+   83 while_st: WHILE L_PAREN bool_expr . R_PAREN compound_st
+
+    R_PAREN  shift, and go to state 201
+
+
+state 187
+
+   82 bool_expr: expr .
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    $default  reduce using rule 82 (bool_expr)
+
+
+state 188
+
+   84 while_st: DO compound_st WHILE . L_PAREN bool_expr R_PAREN SEMICOLON
+
+    L_PAREN  shift, and go to state 202
+
+
+state 189
+
+   80 condition_st: IF L_PAREN bool_expr . R_PAREN compound_st
+   81             | IF L_PAREN bool_expr . R_PAREN compound_st ELSE compound_st
+
+    R_PAREN  shift, and go to state 203
+
+
+state 190
+
+   75 var_ref: symbol_id .
+   76        | symbol_id . arr_ref_indice
+  123 for_single_entry: symbol_id . ASSIGN expr
+  124                 | symbol_id . array_indice ASSIGN init_array
+  127 funct_invoc: symbol_id . L_PAREN expr_list R_PAREN SEMICOLON
+
+    L_PAREN    shift, and go to state 89
+    L_BRACKET  shift, and go to state 204
+    ASSIGN     shift, and go to state 205
+
+    $default  reduce using rule 75 (var_ref)
+
+    array_indice    go to state 206
+    arr_ref_indice  go to state 91
+    arr_ref_index   go to state 92
+
+
+state 191
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+  126 for_single_entry: expr .
+
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    $default  reduce using rule 126 (for_single_entry)
+
+
+state 192
+
+  107 for_st: FOR L_PAREN for_init . SEMICOLON for_control SEMICOLON for_incre R_PAREN compound_st
+
+    SEMICOLON  shift, and go to state 207
+
+
+state 193
+
+  108 for_init: nonEmpty_for_init .
+  110 nonEmpty_for_init: nonEmpty_for_init . COMMA for_single_entry
+
+    COMMA  shift, and go to state 208
+
+    $default  reduce using rule 108 (for_init)
+
+
+state 194
+
+  111 nonEmpty_for_init: for_single_entry .
+
+    $default  reduce using rule 111 (nonEmpty_for_init)
+
+
+state 195
+
+  106 expr: funct_invoc .
+  125 for_single_entry: funct_invoc .
+
+    R_PAREN    reduce using rule 106 (expr)
+    R_PAREN    [reduce using rule 125 (for_single_entry)]
+    SEMICOLON  reduce using rule 106 (expr)
+    SEMICOLON  [reduce using rule 125 (for_single_entry)]
+    COMMA      reduce using rule 106 (expr)
+    COMMA      [reduce using rule 125 (for_single_entry)]
+    $default   reduce using rule 106 (expr)
+
+
+state 196
+
+   72 simple_st: PRINT var_ref SEMICOLON .
+
+    $default  reduce using rule 72 (simple_st)
+
+
+state 197
+
+   73 simple_st: PRINT expr SEMICOLON .
+
+    $default  reduce using rule 73 (simple_st)
+
+
+state 198
+
+   74 simple_st: READ var_ref SEMICOLON .
+
+    $default  reduce using rule 74 (simple_st)
+
+
+state 199
+
+   85 jump_st: RETURN expr SEMICOLON .
+
+    $default  reduce using rule 85 (jump_st)
+
+
+state 200
+
+   71 simple_st: var_ref ASSIGN expr . SEMICOLON
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+
+    OR         shift, and go to state 93
+    AND        shift, and go to state 94
+    NOT        shift, and go to state 95
+    NOT_EQ     shift, and go to state 96
+    GREAT      shift, and go to state 97
+    GREAT_EQ   shift, and go to state 98
+    EQUAL      shift, and go to state 99
+    LESS_EQ    shift, and go to state 100
+    LESS       shift, and go to state 101
+    MINUS      shift, and go to state 102
+    PLUS       shift, and go to state 103
+    MOD        shift, and go to state 104
+    DIVIDE     shift, and go to state 105
+    MULTIPLY   shift, and go to state 106
+    SEMICOLON  shift, and go to state 209
+
+
+state 201
+
+   83 while_st: WHILE L_PAREN bool_expr R_PAREN . compound_st
+
+    L_BRACE  shift, and go to state 138
+
+    compound_st  go to state 210
+
+
+state 202
+
+   84 while_st: DO compound_st WHILE L_PAREN . bool_expr R_PAREN SEMICOLON
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    bool_expr         go to state 211
+    expr              go to state 187
+    funct_invoc       go to state 71
+
+
+state 203
+
+   80 condition_st: IF L_PAREN bool_expr R_PAREN . compound_st
+   81             | IF L_PAREN bool_expr R_PAREN . compound_st ELSE compound_st
+
+    L_BRACE  shift, and go to state 138
+
+    compound_st  go to state 212
+
+
+state 204
+
+   25 array_indice: L_BRACKET . CONS_INTEGER R_BRACKET
+   79 arr_ref_index: L_BRACKET . expr R_BRACKET
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 213
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 120
+    funct_invoc       go to state 71
+
+
+state 205
+
+  123 for_single_entry: symbol_id ASSIGN . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 214
+    funct_invoc       go to state 71
+
+
+state 206
+
+   24 array_indice: array_indice . L_BRACKET CONS_INTEGER R_BRACKET
+  124 for_single_entry: symbol_id array_indice . ASSIGN init_array
+
+    L_BRACKET  shift, and go to state 72
+    ASSIGN     shift, and go to state 215
+
+
+state 207
+
+  107 for_st: FOR L_PAREN for_init SEMICOLON . for_control SEMICOLON for_incre R_PAREN compound_st
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    $default  reduce using rule 117 (for_control)
+
+    symbol_id             go to state 216
+    literal_constant      go to state 68
+    var_ref               go to state 69
+    expr                  go to state 217
+    for_control           go to state 218
+    nonEmpty_for_control  go to state 219
+    for_control_entry     go to state 220
+    funct_invoc           go to state 71
+
+
+state 208
+
+  110 nonEmpty_for_init: nonEmpty_for_init COMMA . for_single_entry
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 190
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 191
+    for_single_entry  go to state 221
+    funct_invoc       go to state 195
+
+
+state 209
+
+   71 simple_st: var_ref ASSIGN expr SEMICOLON .
+
+    $default  reduce using rule 71 (simple_st)
+
+
+state 210
+
+   83 while_st: WHILE L_PAREN bool_expr R_PAREN compound_st .
+
+    $default  reduce using rule 83 (while_st)
+
+
+state 211
+
+   84 while_st: DO compound_st WHILE L_PAREN bool_expr . R_PAREN SEMICOLON
+
+    R_PAREN  shift, and go to state 222
+
+
+state 212
+
+   80 condition_st: IF L_PAREN bool_expr R_PAREN compound_st .
+   81             | IF L_PAREN bool_expr R_PAREN compound_st . ELSE compound_st
+
+    ELSE  shift, and go to state 223
+
+    $default  reduce using rule 80 (condition_st)
+
+
+state 213
+
+   25 array_indice: L_BRACKET CONS_INTEGER . R_BRACKET
+   36 literal_constant: CONS_INTEGER .
+
+    R_BRACKET  shift, and go to state 86
+
+    R_BRACKET  [reduce using rule 36 (literal_constant)]
+    $default   reduce using rule 36 (literal_constant)
+
+
+state 214
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+  123 for_single_entry: symbol_id ASSIGN expr .
+
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    $default  reduce using rule 123 (for_single_entry)
+
+
+state 215
+
+  124 for_single_entry: symbol_id array_indice ASSIGN . init_array
+
+    L_BRACE  shift, and go to state 108
+
+    init_array  go to state 224
+
+
+state 216
+
+   75 var_ref: symbol_id .
+   76        | symbol_id . arr_ref_indice
+  120 for_control_entry: symbol_id . ASSIGN expr
+  121                  | symbol_id . array_indice ASSIGN init_array
+  127 funct_invoc: symbol_id . L_PAREN expr_list R_PAREN SEMICOLON
+
+    L_PAREN    shift, and go to state 89
+    L_BRACKET  shift, and go to state 204
+    ASSIGN     shift, and go to state 225
+
+    $default  reduce using rule 75 (var_ref)
+
+    array_indice    go to state 226
+    arr_ref_indice  go to state 91
+    arr_ref_index   go to state 92
+
+
+state 217
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+  122 for_control_entry: expr .
+
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    $default  reduce using rule 122 (for_control_entry)
+
+
+state 218
+
+  107 for_st: FOR L_PAREN for_init SEMICOLON for_control . SEMICOLON for_incre R_PAREN compound_st
+
+    SEMICOLON  shift, and go to state 227
+
+
+state 219
+
+  116 for_control: nonEmpty_for_control .
+  118 nonEmpty_for_control: nonEmpty_for_control . COMMA for_control_entry
+
+    COMMA  shift, and go to state 228
+
+    $default  reduce using rule 116 (for_control)
+
+
+state 220
+
+  119 nonEmpty_for_control: for_control_entry .
+
+    $default  reduce using rule 119 (nonEmpty_for_control)
+
+
+state 221
+
+  110 nonEmpty_for_init: nonEmpty_for_init COMMA for_single_entry .
+
+    $default  reduce using rule 110 (nonEmpty_for_init)
+
+
+state 222
+
+   84 while_st: DO compound_st WHILE L_PAREN bool_expr R_PAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 229
+
+
+state 223
+
+   81 condition_st: IF L_PAREN bool_expr R_PAREN compound_st ELSE . compound_st
+
+    L_BRACE  shift, and go to state 138
+
+    compound_st  go to state 230
+
+
+state 224
+
+  124 for_single_entry: symbol_id array_indice ASSIGN init_array .
+
+    $default  reduce using rule 124 (for_single_entry)
+
+
+state 225
+
+  120 for_control_entry: symbol_id ASSIGN . expr
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 67
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 231
+    funct_invoc       go to state 71
+
+
+state 226
+
+   24 array_indice: array_indice . L_BRACKET CONS_INTEGER R_BRACKET
+  121 for_control_entry: symbol_id array_indice . ASSIGN init_array
+
+    L_BRACKET  shift, and go to state 72
+    ASSIGN     shift, and go to state 232
+
+
+state 227
+
+  107 for_st: FOR L_PAREN for_init SEMICOLON for_control SEMICOLON . for_incre R_PAREN compound_st
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    $default  reduce using rule 113 (for_incre)
+
+    symbol_id           go to state 190
+    literal_constant    go to state 68
+    var_ref             go to state 69
+    expr                go to state 191
+    for_incre           go to state 233
+    nonEmpty_for_incre  go to state 234
+    for_single_entry    go to state 235
+    funct_invoc         go to state 195
+
+
+state 228
+
+  118 nonEmpty_for_control: nonEmpty_for_control COMMA . for_control_entry
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id          go to state 216
+    literal_constant   go to state 68
+    var_ref            go to state 69
+    expr               go to state 217
+    for_control_entry  go to state 236
+    funct_invoc        go to state 71
+
+
+state 229
+
+   84 while_st: DO compound_st WHILE L_PAREN bool_expr R_PAREN SEMICOLON .
+
+    $default  reduce using rule 84 (while_st)
+
+
+state 230
+
+   81 condition_st: IF L_PAREN bool_expr R_PAREN compound_st ELSE compound_st .
+
+    $default  reduce using rule 81 (condition_st)
+
+
+state 231
+
+   89 expr: expr . OR expr
+   90     | expr . AND expr
+   91     | expr . NOT expr
+   92     | expr . LESS expr
+   93     | expr . LESS_EQ expr
+   94     | expr . EQUAL expr
+   95     | expr . GREAT_EQ expr
+   96     | expr . GREAT expr
+   97     | expr . NOT_EQ expr
+   98     | expr . PLUS expr
+   99     | expr . MINUS expr
+  100     | expr . MULTIPLY expr
+  101     | expr . DIVIDE expr
+  102     | expr . MOD expr
+  120 for_control_entry: symbol_id ASSIGN expr .
+
+    OR        shift, and go to state 93
+    AND       shift, and go to state 94
+    NOT       shift, and go to state 95
+    NOT_EQ    shift, and go to state 96
+    GREAT     shift, and go to state 97
+    GREAT_EQ  shift, and go to state 98
+    EQUAL     shift, and go to state 99
+    LESS_EQ   shift, and go to state 100
+    LESS      shift, and go to state 101
+    MINUS     shift, and go to state 102
+    PLUS      shift, and go to state 103
+    MOD       shift, and go to state 104
+    DIVIDE    shift, and go to state 105
+    MULTIPLY  shift, and go to state 106
+
+    $default  reduce using rule 120 (for_control_entry)
+
+
+state 232
+
+  121 for_control_entry: symbol_id array_indice ASSIGN . init_array
+
+    L_BRACE  shift, and go to state 108
+
+    init_array  go to state 237
+
+
+state 233
+
+  107 for_st: FOR L_PAREN for_init SEMICOLON for_control SEMICOLON for_incre . R_PAREN compound_st
+
+    R_PAREN  shift, and go to state 238
+
+
+state 234
+
+  112 for_incre: nonEmpty_for_incre .
+  114 nonEmpty_for_incre: nonEmpty_for_incre . COMMA for_single_entry
+
+    COMMA  shift, and go to state 239
+
+    $default  reduce using rule 112 (for_incre)
+
+
+state 235
+
+  115 nonEmpty_for_incre: for_single_entry .
+
+    $default  reduce using rule 115 (nonEmpty_for_incre)
+
+
+state 236
+
+  118 nonEmpty_for_control: nonEmpty_for_control COMMA for_control_entry .
+
+    $default  reduce using rule 118 (nonEmpty_for_control)
+
+
+state 237
+
+  121 for_control_entry: symbol_id array_indice ASSIGN init_array .
+
+    $default  reduce using rule 121 (for_control_entry)
+
+
+state 238
+
+  107 for_st: FOR L_PAREN for_init SEMICOLON for_control SEMICOLON for_incre R_PAREN . compound_st
+
+    L_BRACE  shift, and go to state 138
+
+    compound_st  go to state 240
+
+
+state 239
+
+  114 nonEmpty_for_incre: nonEmpty_for_incre COMMA . for_single_entry
+
+    L_PAREN          shift, and go to state 60
+    MINUS            shift, and go to state 61
+    ID               shift, and go to state 26
+    CONS_INTEGER     shift, and go to state 62
+    CONS_FLOAT       shift, and go to state 63
+    CONS_SCIENTIFIC  shift, and go to state 64
+    CONS_STRING      shift, and go to state 65
+    CONS_BOOL        shift, and go to state 66
+
+    symbol_id         go to state 190
+    literal_constant  go to state 68
+    var_ref           go to state 69
+    expr              go to state 191
+    for_single_entry  go to state 241
+    funct_invoc       go to state 195
+
+
+state 240
+
+  107 for_st: FOR L_PAREN for_init SEMICOLON for_control SEMICOLON for_incre R_PAREN compound_st .
+
+    $default  reduce using rule 107 (for_st)
+
+
+state 241
+
+  114 nonEmpty_for_incre: nonEmpty_for_incre COMMA for_single_entry .
+
+    $default  reduce using rule 114 (nonEmpty_for_incre)

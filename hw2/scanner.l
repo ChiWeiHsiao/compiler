@@ -1,6 +1,6 @@
 %{
 #include <string.h>
-#include "y.tab.h"“
+#include "y.tab.h"
 
 #define LIST                { strncat(buf, yytext, sizeof(buf) - strlen(buf) - 1); }
 #define token(t)            { LIST; if (Opt_Token) printf("<%s>\n", #t); }
@@ -37,7 +37,7 @@ scientific  {significand}[Ee][\+-]?{exponent}
 identifier  ({letter})({letter}|{digit})*
 
 
-%x STRING
+%x STRING_STATE
 %x COMMENT_ONE
 %x COMMENT_MUL
 %x PRAGMA 
@@ -50,8 +50,8 @@ identifier  ({letter})({letter}|{digit})*
 %%
 ","   { tokenString("delim", ","); return COMMA; }
 ";"   { tokenString("delim", ";"); return SEMICOLON; }
-"("   { tokenString("delim", "("); return L_PARENTHESIS; }
-")"   { tokenString("delim", ")"); return R_PARENTHESIS; }
+"("   { tokenString("delim", "("); return L_PAREN; }
+")"   { tokenString("delim", ")"); return R_PAREN; }
 "["   { tokenString("delim", "["); return L_BRACKET; }
 "]"   { tokenString("delim", "]"); return R_BRACKET; }
 "{"   { tokenString("delim", "{"); return L_BRACE; }
@@ -77,8 +77,8 @@ identifier  ({letter})({letter}|{digit})*
 "do"                            { token("KW:do"); return DO; }
 "if"                            { token("KW:if"); return IF; }
 "else"                          { token("KW:else"); return ELSE; }
-"true"                          { token("KW:true"); return TRUE; }
-"false"                         { token("KW:false"); return FALSE; }
+"true"                          { token("KW:true"); return CONS_BOOL; }
+"false"                         { token("KW:false"); return CONS_BOOL; }
 "for"                           { token("KW:for"); return FOR; }
 "int"                           { token("KW:int"); return INT; }
 "print"                         { token("KW:print"); return PRINT; }
@@ -105,22 +105,22 @@ identifier  ({letter})({letter}|{digit})*
 
 "\""			{ /*start of a string  */
                           LIST;
-                          BEGIN STRING; 
+                          BEGIN STRING_STATE; 
                         }   
 
-<STRING>([^"\n\\])+     {/*General Case: not \ " \n*/   
+<STRING_STATE>([^"\n\\])+     {/*General Case: not \ " \n*/   
                           LIST;
                           strcat( str, yytext );
                         }
 
 
-<STRING>[\\][\"]	{/*double quote*/
+<STRING_STATE>[\\][\"]	{/*double quote*/
 			 LIST;
 			 strcat(str, "\""); 	
 			}
 
 
-<STRING>[\"]		{/*end of the string*/
+<STRING_STATE>[\"]		{/*end of the string*/
 			 LIST;
 			 //tokenString("string",str);
  			 if (Opt_Token) printf("<string:%s>\n", str); 
@@ -129,12 +129,12 @@ identifier  ({letter})({letter}|{digit})*
 			 return CONS_STRING;
 			}
 
-<STRING>[\\]{2}		{/*back-slash*/
+<STRING_STATE>[\\]{2}		{/*back-slash*/
 			 LIST;
 			 strcat(str, "\\"); 	
 			}
 
-<STRING>"\n"            { error();}     
+<STRING_STATE>"\n"            { error();}     
 
 
 

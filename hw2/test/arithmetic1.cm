@@ -2,9 +2,12 @@
 #pragma token off
 #pragma statistic off
 
+//int a,b;
+
 int main()
 {
-        int a,b;
+		int a[1][2] = {2, 3+4};
+        int a=3,b;
 
         a = 1+1;
         a = a+a;

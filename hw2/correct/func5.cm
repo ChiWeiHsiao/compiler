@@ -23,3 +23,9 @@ int func2()
     return tmp[5][2];
 }
 int c = 0;
+
+int main()
+{
+    int array[5];
+    return 0;
+}

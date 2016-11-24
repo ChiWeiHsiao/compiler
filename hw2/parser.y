@@ -154,13 +154,11 @@ proc_decl	: VOID symbol_id arg_list R_PAREN SEMICOLON {printf("# %d: proc declar
 			;
 
 /* Define 1 or more */ 
-definition_list	: definition definition_list
-				| definition
+definition_list	: type symbol_id arg_list R_PAREN compound_st definition_list
+				| VOID symbol_id arg_list R_PAREN compound_st definition_list
+				| type symbol_id arg_list R_PAREN compound_st 
+				| VOID symbol_id arg_list R_PAREN compound_st
 				;
-
-definition 	: type symbol_id arg_list R_PAREN compound_st 
-			| VOID symbol_id arg_list R_PAREN compound_st
-			;
 
 
 /* Argument, 0 or more */			

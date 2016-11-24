@@ -65,9 +65,10 @@ program	: decl_and_def_list
 		;
 
 
-decl_and_def_list	: decl_and_def_list declaration_list 
+decl_and_def_list	: decl_and_def_list declaration_list {printf("DECLARE\n");} 
+					| declaration_list decl_and_def_list
 					| definition_list
-					| decl_and_def_list definition_list
+					| definition_list decl_and_def_list
 					;
 
 /* Declare 1 or more */
@@ -82,7 +83,7 @@ declaration_list	: declaration_list const_decl {printf("C: const decl\n");}
 					;
 
 /* Variable */
-var_decl : type var_list {printf("var_dec: want ;\n");} SEMICOLON {printf("var declare\n");}
+var_decl : type {printf("wait assign\n");}  var_list {printf("var_dec: want ;\n");} SEMICOLON {printf("var declare\n");}
          ;
 
 /* General */
@@ -115,8 +116,17 @@ var_single	: identifier /* w/o init*/
 			| symbol_id array_indice ASSIGN init_array /* arr[2] = { 4*4, 5 } */
 			;
 
-init_array	: L_BRACE expr_list R_BRACE
+init_array	: expr_list R_BRACE
           	;
+
+	/* zero or more, seperated by ',' */
+expr_list : L_BRACE nonEmpty_expr_list
+          | L_BRACE
+          ;
+
+nonEmpty_expr_list : nonEmpty_expr_list COMMA expr
+                   | expr 
+                   ;
 
 /* Constant Variable */
 const_decl	: CONST type const_list SEMICOLON
@@ -146,18 +156,19 @@ proc_decl	: VOID symbol_id L_PAREN arg_list R_PAREN SEMICOLON {printf("Reduce: p
 
 
 /* Define 1 or more */ 
-definition_list	: definition_list definition
+definition_list	: definition definition_list
 				| definition
 				;
 
-definition 	: {printf("Reduce: func define \n");} type symbol_id L_PAREN arg_list R_PAREN compound_st 
-			| {printf("Reduce: proc define \n");} VOID symbol_id L_PAREN arg_list R_PAREN compound_st 
+definition 	: {printf("Reduce: func define \n");} type symbol_id arg_list R_PAREN compound_st 
+			| {printf("Reduce: proc define \n");} VOID symbol_id arg_list R_PAREN compound_st 
             ;
 
 /* Argument */			
 	/*int x, int y[2][8], string z*/
-arg_list 	: nonEmpty_arg_list 
-			| /* epsilon*/
+
+arg_list 	: L_PAREN nonEmpty_arg_list 
+			| L_PAREN
 			;
 
 nonEmpty_arg_list	: arg COMMA nonEmpty_arg_list
@@ -168,12 +179,12 @@ arg 	: type identifier
 		;
 
 /* Compound, local */
-compound_st	: L_BRACE compound_list R_BRACE 
+compound_st	: compound_list R_BRACE 
 	    	;
 /* 0 or more */
-compound_list	: compound_list var_const_decl_list
-				| compound_list stat_list
-				|
+compound_list	: L_BRACE compound_list var_const_decl_list
+				| L_BRACE compound_list stat_list
+				| L_BRACE
 				;
 
 	/* 0 or more*/
@@ -262,20 +273,20 @@ expr 	: L_PAREN expr R_PAREN
      	/*| '(' expr ')'*/
 
 /* For */
-for_st	: FOR L_PAREN for_init SEMICOLON for_control SEMICOLON for_incre R_PAREN compound_st
+for_st	: FOR for_init for_control for_incre R_PAREN compound_st
 		;
 		/* 0 or more expr */
 		/* not finish */
 /*for_expr_list	: expr_list*/
-for_init	: nonEmpty_for_init
-			|
+for_init	: L_PAREN nonEmpty_for_init
+			| L_PAREN
 			;
 nonEmpty_for_init	: nonEmpty_for_init COMMA for_single_entry
 					| for_single_entry
 					;
 /* assign or function call */
-for_incre	: nonEmpty_for_incre
-			|
+for_incre	: SEMICOLON nonEmpty_for_incre
+			| SEMICOLON
 			;	
 
 nonEmpty_for_incre	: nonEmpty_for_incre COMMA for_single_entry
@@ -283,16 +294,25 @@ nonEmpty_for_incre	: nonEmpty_for_incre COMMA for_single_entry
 					;
 
 /* relation */
-for_control	: nonEmpty_for_control
-			|
+for_control	: SEMICOLON nonEmpty_for_control
+			| SEMICOLON
 			;
 
 nonEmpty_for_control	: nonEmpty_for_control COMMA for_control_entry
 						| for_control_entry
 						;
-for_control_entry	: symbol_id ASSIGN expr
+
+for_control_entry	: expr OR expr
+					| expr AND expr
+					| expr NOT expr
+					| expr LESS expr
+					| expr LESS_EQ expr
+					| expr EQUAL expr
+					| expr GREAT_EQ expr
+					| expr GREAT expr
+					| expr NOT_EQ expr 
+					| symbol_id ASSIGN expr
 					| symbol_id array_indice ASSIGN init_array
-					| expr 
 					;
 /*
 for_control_entry	: expr OR expr
@@ -317,18 +337,16 @@ for_single_entry	: symbol_id ASSIGN expr
 /*init_expr	: */
 
 /* Function Invocation */     	
-funct_invoc	: symbol_id L_PAREN expr_list R_PAREN SEMICOLON {printf("call func\n");}/* 0 or more expr */
+funct_invoc	: symbol_id funct_invoc_list R_PAREN SEMICOLON {printf("call func\n");}/* 0 or more expr */
 			;
 
-	/* zero or more, seperated by ',' */
-expr_list : nonEmpty_expr_list
-          | /*epsilon*/
-          ;
+funct_invoc_list	: L_PAREN 
+					| L_PAREN nonEmpty_funct_invoc_list COMMA expr
+					;
 
-nonEmpty_expr_list : nonEmpty_expr_list COMMA expr
-                   | expr 
-                   ;
-
+nonEmpty_funct_invoc_list	: nonEmpty_funct_invoc_list COMMA expr
+							| expr
+							;
 
 
 %%

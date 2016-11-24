@@ -49,7 +49,7 @@ identifier  ({letter})({letter}|{digit})*
 %x PRAGMA_AFTER_COMMENT
 %%
 ","   { tokenString("delim", ","); return COMMA; }
-";"   { tokenString("delim", ";"); return SEMICOLON; }
+";   { tokenString("delim", ";"); return SEMICOLON; }
 "("   { tokenString("delim", "("); return L_PAREN; }
 ")"   { tokenString("delim", ")"); return R_PAREN; }
 "["   { tokenString("delim", "["); return L_BRACKET; }

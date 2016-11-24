@@ -74,10 +74,10 @@ decl_and_def_list	: decl_and_def_list declaration_list
 					;
 
 /* Declare 1 or more */
-declaration_list	: const_decl declaration_list
-					| var_decl declaration_list 
-					| funct_decl declaration_list  
-					| proc_decl  mdeclaration_list 
+declaration_list	: declaration_list const_decl
+					| declaration_list var_decl
+					| declaration_list funct_decl 
+					| declaration_list proc_decl 
 					| const_decl 
 					| var_decl 
 					| funct_decl

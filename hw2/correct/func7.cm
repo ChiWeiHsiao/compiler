@@ -7,14 +7,20 @@
 #pragma statistic off
 int func2();
 
-int a;
+int a = 4;
 
 int main()
 {
     int array[5];
     return 0;
 }
+
+int f(){
+	
+}
+
 int d = 0;
+
 void func3();
 int func2()
 {

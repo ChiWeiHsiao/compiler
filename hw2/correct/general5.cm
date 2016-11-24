@@ -7,6 +7,7 @@
 int sptr;
 string data[100];
 int sizeStack = 100;
+int init();
 void init();
 void general5()
 {
@@ -14,6 +15,11 @@ void general5()
         push("hello");
         push(" C- language");
         push("\n");
+        do{
+            a = a+1;
+        }while(true);
+
+        int push();
 
         while(!isEmpty()){
             print pop();
@@ -25,7 +31,9 @@ void init()
         sptr = -1;
 }        
 
+
 void push(string item);
+
 void push(string item)
 {
         sptr = sptr+1;

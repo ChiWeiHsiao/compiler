@@ -61,15 +61,25 @@ int yyerror(char *s);
 
 %%
 /* at least one function_def in a program*/
-program	: decl_and_def_list 
+program	: before decl_and_def_list after
+		| before decl_and_def_list
+		| decl_and_def_list after
+		| funct_def
 		;
 
+before	: funct_def
+		| proc_def
+		;
 
+after	: funct_def
+		| proc_def
+		| const_decl  
+		| var_decl  
+		| funct_decl
+		| proc_decl
+		;
 
-
-decl_and_def_list	: decl_and_def_list declaration_list
-					| declaration_list decl_and_def_list
-					| definition_list
+decl_and_def_list	: declaration_list decl_and_def_list
 					| definition_list decl_and_def_list
 					;
 
@@ -85,7 +95,7 @@ declaration_list	: declaration_list const_decl
 					;
 
 /* Variable */
-var_decl : type var_list SEMICOLON  {printf("# %d: var declare\n",linenum);}
+var_decl : type var_list SEMICOLON 
          ;
 
 /* General */
@@ -131,7 +141,7 @@ nonEmpty_init_arr_list 	: nonEmpty_init_arr_list COMMA expr
                    		;
 
 /* Constant Variable */
-const_decl	: CONST type const_list SEMICOLON {printf("# %d: const declare\n",linenum);}
+const_decl	: CONST type const_list SEMICOLON 
 	   		;
 
 const_list : const_init COMMA const_list
@@ -149,20 +159,24 @@ literal_constant	: CONS_INTEGER
 					;
 
 /* Declare Function */
-funct_decl	: type symbol_id arg_list R_PAREN SEMICOLON {printf("# %d: func declare\n",linenum);}/*will return something*/
+funct_decl	: type symbol_id arg_list R_PAREN SEMICOLON/*will return something*/
 			;
 
-proc_decl	: VOID symbol_id arg_list R_PAREN SEMICOLON {printf("# %d: proc declare\n",linenum);}/*{printf("Reduce: proc decl\n");}*/ /*procedure*/
+proc_decl	: VOID symbol_id arg_list R_PAREN SEMICOLON/*{printf("Reduce: proc decl\n");}*/ /*procedure*/
 			;
 
 /* Define 1 or more */ 
-definition_list	: type symbol_id arg_list R_PAREN compound_st definition_list
-				| VOID symbol_id arg_list R_PAREN compound_st definition_list
-				| type symbol_id arg_list R_PAREN compound_st 
-				| VOID symbol_id arg_list R_PAREN compound_st
+definition_list	: funct_def definition_list
+				| proc_def definition_list
+				| funct_def 
+				| proc_def
 				;
 
+funct_def 	: type symbol_id arg_list R_PAREN compound_st
+			;
 
+proc_def 	: VOID symbol_id arg_list R_PAREN compound_st
+			;			
 /* Argument, 0 or more */			
 	/*int x, int y[2][8], string z*/
 
@@ -197,11 +211,11 @@ nonEmpty_compound_list	: var_decl nonEmpty_compound_list
 /* Statements, 7 types */
 /*? semicolon */
 statement	: compound_st
-	  		| simple_st {printf("# %d: simple st\n",linenum);}
+	  		| simple_st 
 			| condition_st
 			| while_st
 			| for_st
-			| jump_st {printf("# %d: jump mst\n",linenum);}
+			| jump_st 
 			| funct_invoc_st /*_st : with ';'*/ /* in expr: w/o ';' */
 			;
 
@@ -235,7 +249,7 @@ bool_expr	: expr
 
 /* While statment*/
 while_st 	: WHILE L_PAREN bool_expr R_PAREN compound_st /* while */
-			| DO compound_st WHILE L_PAREN bool_expr R_PAREN SEMICOLON {printf("# %d: do-while mast\n",linenum);} /*do while*/
+			| DO compound_st WHILE L_PAREN bool_expr R_PAREN SEMICOLON  /*do while*/
 			;
 
 /* Jump */			

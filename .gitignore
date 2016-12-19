@@ -1,3 +1,9 @@
 *.out
+*.zip
+*.o
 *.pdf
-*.sw*
+parser
+scanner
+*yy.c
+*tab.c
+*tab.h

@@ -1,9 +1,9 @@
 /**
  * general5.p: general case 5
  */
-#pragma source off
-#pragma token off
-#pragma statistic off
+#pragma source on
+#pragma token on
+#pragma statistic on
 int sptr;
 string data[100];
 int sizeStack = 100;

@@ -11,10 +11,8 @@ int main()
     bool a;
     while(a)
     {
-        for(b = 1; a, f; b = b+1)  //lose a pair of parentheses
-        {
-
-        }
+        for(b = 1; a, f ; b = b+1)  //lose a pair of parentheses
+        {}
 
     }
 }

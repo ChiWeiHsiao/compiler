@@ -1,12 +1,12 @@
 TARGET = scanner
 OBJECT = lex.yy.c 
 CC = gcc
-LIBS = -lfl
+LIBS = -ll
 
 all: lex.yy.c
 	$(CC) -o $(TARGET) lex.yy.c $(LIBS)
 
-lex.yy.c: lextemplate.l
+lex.yy.c: scanner.l
 	lex scanner.l
 
 clean:

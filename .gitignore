@@ -2,8 +2,8 @@
 *.zip
 *.o
 *.pdf
-parser
-scanner
+*parser
+*scanner
 *yy.c
 *tab.c
 *tab.h

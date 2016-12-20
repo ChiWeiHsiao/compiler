@@ -27,10 +27,25 @@ int  main( int argc, char **argv )
 
 	yyparse();	/* primary procedure of parser */
 
+	/*if("no error"){
+		dispose_id_table();
+        
+        if(!show_errors()){           
+            fprintf( stdout, "\n" );
+            fprintf( stdout, "|---------------------------------------------|\n" );
+            fprintf( stdout, "|  There is no syntactic and semantic error!  |\n" );
+            fprintf( stdout, "|---------------------------------------------|\n" );
+        }
+	}*/
 	
 	fprintf( stdout, "\n|--------------------------------|\n" );
 	fprintf( stdout, "|  There is no syntactic error!  |\n" );
 	fprintf( stdout, "|--------------------------------|\n" );
+
+
+	
+       
+
 	exit(0);
 }
 

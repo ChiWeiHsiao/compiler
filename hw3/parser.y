@@ -1,28 +1,19 @@
-s%{
+%{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX_ENTRY_NUM 2000
+#include <stdbool.h>
+#include "ds.h"
+#include "table.h"
 
+extern int Opt_Source;
+extern int Opt_Token;
+extern int Opt_Statistic;
+extern int Opt_Symbol;
 extern int linenum;
 extern FILE	*yyin;
 extern char	*yytext;
 extern char buf[256];
-
-struct SymbolEntry{
-	char name[33];
-	char kind[10];//function, parameter, variable, constant
-	int level;//global=0, local=1,2,3... 
-	int type;//token INT 
-	//int=0, float=1, double=2, bool=3, string=4 or the signature of an array=5. ex. float, int[10]
-	char attr[100];//use strcat(attr, ...);	//use typedef union
-	//attribute, Other attributes of the symbol, 
-	//such as the value of a constant, 
-	//list of the types of the formal parameters of a function
-	bool declared;
-    bool matched;
-} stack[MAX_ENTRY_NUM];	//use level to decide pop
-int ptrStack = 0;
 
 %}
 
@@ -91,7 +82,7 @@ int ptrStack = 0;
 %start program
 %%
 
-program :  decl_list funct_def decl_and_def_list 
+program :  { InitTable(); } decl_list funct_def decl_and_def_list 
            ;
 
 decl_list : decl_list var_decl
@@ -161,7 +152,7 @@ dim : dim ML_BRACE INT_CONST MR_BRACE
 	| ML_BRACE INT_CONST MR_BRACE
 	;
 
-compound_statement : L_BRACE var_const_stmt_list R_BRACE
+compound_statement : L_BRACE { pushTable(); printf("%d\n",curLevel); } var_const_stmt_list R_BRACE
 				   ;
 
 var_const_stmt_list : var_const_stmt_list statement	
@@ -322,35 +313,6 @@ literal_const : INT_CONST
 			  | FALSE
 			  ;
 %%
-
-void PrintSymbolTable(){
-	printf("=======================================================================================\n");
-	 // Name [29 blanks] Kind [7 blanks] Level [7 blank] Type [15 blanks] Attribute [15 blanks]
-	printf("Name                             Kind       Level       Type               Attribute   \n");
-	printf("---------------------------------------------------------------------------------------\n");
-	for( int i = 0; i < ptrStack; i++ ){
-		SymbolEntry tmp = stack[i];
-		char level_msg[7];
-		if( tmp.level == 0 )
-			strcpy(level_msg, "0(global)");
-		else{
-			sprintf (level_msg, "%d(local)", );
-		}
-		char type_msg[15];
-		switch(tmp.type){
-			case(INT):
-				type
-
-
-		}
-
-		printf("%29s%7s%7d%15s%15s", tmp.name, tmp.kind, level_msg, );//print one entry
-	}
-	//printf{"a                                function   0(global)   int                int[2],float\n");
-	// ....
-     // Format of Attribute: type,type,type,...
-	printf("======================================================================================\n");
-}
 
 int yyerror( char *msg )
 {

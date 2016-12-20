@@ -1,32 +1,24 @@
-TARGET = parser
-OBJECT = lex.yy.c y.tab.c y.tab.o lex.yy.o y.output parser y.tab.h main.o
-CC = gcc -g
-LEX = flex
-YACC = yacc -v
+TARGET   = parser
+OBJECT   = lex.yy.c y.tab.c y.output parser y.tab.h
+CC       = gcc
+CFLAGS   = -Wall -Wextra -pedantic -g3
+LEX      = flex
+YACC     = yacc -v -t -l
 YACCFLAG = -d
-#LIBS = -ll
-LIBS = -lfl
+LIBS     = -ll -lm
 
 all: $(TARGET)
-
-parser: y.tab.o lex.yy.o main.o
-	$(CC) -o $(TARGET) y.tab.o lex.yy.o main.o $(LIBS)
-
-y.tab.o: y.tab.c
-	$(CC) -c y.tab.c
+	
+$(TARGET): y.tab.c lex.yy.c main.c table.c
+	$(CC) $^ -o $(TARGET) $(CCFLAGS) $(LIBS)
 
 y.tab.c: parser.y
-	$(YACC) $(YACCFLAG) parser.y
-
-lex.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c
+	$(YACC) $(YACCFLAG) $<
 
 lex.yy.c: lex.l
-	$(LEX) lex.l
+	$(LEX) $<
 
-main.o: main.c
-	$(CC) -c main.c
+.PHONY: clean
 
 clean:
-	rm -f $(TARGET) $(OBJECT)
-
+	$(RM) -f $(TARGET) $(OBJECT)

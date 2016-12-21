@@ -12,8 +12,15 @@ typedef enum { ADD_t, SUB_t, MUL_t, DIV_t, MOD_t, LT_t, LE_t, EQ_t, GE_t, GT_t, 
 char lexStr[100];
 char lexID[33];
 char tmpStr[100];
+char dimStr[100];
+char idStr[33];
+typedef struct anArray { char arrID[33]; char arrDim[100]; }arrEntry;
+//struct arrEntry curArr;
+
 int curLevel;//scope
 int curScalarType;//INT=1, DOUBLE=2, STRING=3, BOOL=4, FLOAT=5 
+
+
 /*
 union SymbolAttr {
 	struct ConstAttr constVal;
@@ -24,7 +31,7 @@ struct SymbolEntry{
 	//char name[33];
 	char *name;
 	int level;//global=0, local=1,2,3... 
-	int type;
+	int type; // 存成 char[100]? int, int[10];
 	//int type;// token INT 	 //int=0, float=1, double=2, bool=3, string=4 or the signature of an array=5. ex. float, int[10]
 	char kind[10];//function, parameter, variable, constant  ////SEMTYPE category;
 	char attribute[15];
@@ -42,7 +49,7 @@ int ptrStack;
 
 
 
-
+ 
 
 
 

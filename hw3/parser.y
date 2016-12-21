@@ -22,6 +22,8 @@ extern char buf[256];
 %union {
 	char *lexeme;
 	char str[100];
+	//arrEntry oneArr;
+	struct arrEntry{ char arrID[33]; char arrDim[100]; } oneArr;
 	//int scalarType;
 		///SEMTYPE type;
 	//struct ConstAttr *constVal;
@@ -34,6 +36,9 @@ extern char buf[256];
 
 %type <lexeme> identifier_list
 %type <str> literal_const
+%type <str> dim
+%type <oneArr> array_decl
+
 //%type <scalarType> scalar_type;
 
 
@@ -148,13 +153,13 @@ identifier_list : identifier_list COMMA ID {
 				| identifier_list COMMA array_decl ASSIGN_OP initial_array //?array
 				| identifier_list COMMA array_decl 
 				| array_decl ASSIGN_OP initial_array
-				| array_decl
+				| array_decl //{ insertArrayEntry($1.arrID, $1.arrDim); }
 				| ID ASSIGN_OP logical_expression { insertEntry($1); }
 				| ID { 
 					//$$ = createIdList($1); 
 					insertEntry($1);
 					printf("line %d:\tinsertEntry, type = %d\n",linenum, curScalarType);
-					}
+				 }
 				;
 
 initial_array : L_BRACE literal_list R_BRACE
@@ -172,12 +177,16 @@ const_list : const_list COMMA ID ASSIGN_OP literal_const
                     
 		   ;
 
-array_decl : ID dim
+array_decl : ID dim 
+			{ 
+				sprintf($$.arrID, "%s", $1); sprintf($$.arrDim, "%s", $2);  
+				printf("array_decl: %s%s\n", $$.arrID, $$.arrDim); 
+			}//sprintf(idStr, "%s", $1); }
+			//{ strcpy( curArr.arrID, $1); strcpy( curArr.arrDim, );//不要用＄2，用global$2); printf("array_decl: %s%s\n", curArr.arrID, curArr.arrDim); }//sprintf(idStr, "%s", $1); }
 		   ;
 
-dim : dim ML_BRACE INT_CONST MR_BRACE
-	| ML_BRACE INT_CONST MR_BRACE
-	;
+dim : dim ML_BRACE INT_CONST MR_BRACE { sprintf($$, "%s[%s]", $1, $3); }//printf("append dimStr: %s\n", $$);}//sprintf(dimStr, "%s[%s]", dimStr, $3);
+	| ML_BRACE INT_CONST MR_BRACE { sprintf( $$, "[%s]", $2); }//sprintf(dimStr, "[%s]", $2); }
 
 compound_statement : L_BRACE { pushTable(); } var_const_stmt_list R_BRACE
 				   ;

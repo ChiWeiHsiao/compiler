@@ -43,15 +43,22 @@ void insertEntry( const char *str ){
 	newEntry.type = curScalarType;
 	newEntry.level = curLevel;
 	stack[ ptrStack++ ] = newEntry;
+
+	#ifdef debug
 	printf("name: %s\n", stack[ptrStack-1].name);
+	#endif
 }
 
-void insertArray( const char *str, const char *dim ){
-	//printf("insertEntry, mof type = %d\n",curScalarType);
+/*void insertArrayEntry( const char *id, const char *dim ){
 	struct SymbolEntry newEntry;
-	strcpy( newEntry.name, str );
-	newEntry.type = curScalarType;
+	strcpy( newEntry.name, id );
+	//newEntry.type = curScalarType;
 	newEntry.level = curLevel;
+	//strcpy( newEntry.attribute, dim );
+
 	stack[ ptrStack++ ] = newEntry;
-	printf("name: %s\n", stack[ptrStack-1].name);
-}
+
+	#ifdef debug
+	printf("\tinsert Array Entry, level = %d\n",curLevel);
+	#endif
+}*/

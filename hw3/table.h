@@ -7,6 +7,6 @@ void pushTable();
 void popTable(int scope);
 void printTable(int scope);
 void insertEntry(const char *str);
-//void insertArrayEntry(const char *id, const char *dim);
+void insertArrayEntry(const char *id, const char *dim);
 
 #endif

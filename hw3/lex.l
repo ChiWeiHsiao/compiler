@@ -17,6 +17,9 @@ int Opt_Symbol = 1;
 int linenum = 1;
 char buf[MAX_LINE_LENG];
 char strContent[MAX_LINE_LENG];
+
+char lexStr[100];
+
 char tmp[33];
 typedef struct ids{
 	char id_name[256];

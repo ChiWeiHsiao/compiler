@@ -153,12 +153,12 @@ identifier_list : identifier_list COMMA ID {
 				| identifier_list COMMA array_decl ASSIGN_OP initial_array //?array
 				| identifier_list COMMA array_decl 
 				| array_decl ASSIGN_OP initial_array
-				| array_decl //{ insertArrayEntry($1.arrID, $1.arrDim); }
+				| array_decl { insertArrayEntry($1.arrID, $1.arrDim); }
 				| ID ASSIGN_OP logical_expression { insertEntry($1); }
 				| ID { 
 					//$$ = createIdList($1); 
 					insertEntry($1);
-					printf("line %d:\tinsertEntry, type = %d\n",linenum, curScalarType);
+					printf("line %d:\tinsertEntry, type = %s\n",linenum, curType);
 				 }
 				;
 
@@ -329,11 +329,11 @@ dimension : dimension ML_BRACE logical_expression MR_BRACE
 		  | ML_BRACE logical_expression MR_BRACE
 		  ;
 
-scalar_type : INT { curScalarType = 1; }
-			| DOUBLE { curScalarType = 2; }
-			| STRING { curScalarType = 3; }
-			| BOOL { curScalarType = 4; }
-			| FLOAT { curScalarType = 5;  }
+scalar_type : INT //{ sprintf(curType, "int"); }
+			| DOUBLE //{ sprintf(curType, "double"); }//curScalarType = 2; }
+			| STRING //{ sprintf(curType, "string"); }//curScalarType = 3; }
+			| BOOL //{ sprintf(curType, "bool"); }//curScalarType = 4; }
+			| FLOAT //{ sprintf(curType, "float"); }//curScalarType = 5;  }
 			;
  
 literal_const : INT_CONST { strcpy($$, $1); }//printf("INT_CONST: %s \n", $1);}// {$$ = $1;}//{ printf("INT_CONST: %s \n", $1);}

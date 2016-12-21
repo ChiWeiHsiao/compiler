@@ -5,7 +5,7 @@
 #include "ds.h"
 #include "table.h"
 #include "check.h"
-#define debug
+//#define debug
 
 void InitTable(){
 	curLevel = 0;
@@ -37,28 +37,35 @@ void printTable(int scope){
 }
 
 void insertEntry( const char *str ){
-	//printf("insertEntry, mof type = %d\n",curScalarType);
+	//printf("insertEntry, mof type = %s\n",curType);
 	struct SymbolEntry newEntry;
 	strcpy( newEntry.name, str );
-	newEntry.type = curScalarType;
+	//mstrcpy( newEntry.type, curType );
+	//newEntry.type = curScalarType;
 	newEntry.level = curLevel;
 	stack[ ptrStack++ ] = newEntry;
 
 	#ifdef debug
-	printf("name: %s\n", stack[ptrStack-1].name);
+	//printf("name: %s\n", stack[ptrStack-1].name);
+	for(int i=0; i<ptrStack; i++){
+		printf("level:%d, name:%s \n",stack[i].level, stack[i].name );
+	}
 	#endif
 }
 
-/*void insertArrayEntry( const char *id, const char *dim ){
+void insertArrayEntry( const char *id, const char *dim ){
 	struct SymbolEntry newEntry;
 	strcpy( newEntry.name, id );
 	//newEntry.type = curScalarType;
 	newEntry.level = curLevel;
 	//strcpy( newEntry.attribute, dim );
+	
+	// 把 dim  資訊存到 kind
+
 
 	stack[ ptrStack++ ] = newEntry;
 
 	#ifdef debug
 	printf("\tinsert Array Entry, level = %d\n",curLevel);
 	#endif
-}*/
+}

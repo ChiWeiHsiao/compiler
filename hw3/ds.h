@@ -1,7 +1,7 @@
 #ifndef _DS_H_
 #define _DS_H_
 
-#define MAX_ENTRY_NUM 2000
+#define MAX_ENTRY_NUM 1000
 
 #include <stdbool.h>
 
@@ -10,7 +10,7 @@ VARIABLE_t, PARAMETER_t, CONSTANT_t, ERROR_t, ID_LIST, LOOPVAR_t } SEMTYPE;
 typedef enum { ADD_t, SUB_t, MUL_t, DIV_t, MOD_t, LT_t, LE_t, EQ_t, GE_t, GT_t, NE_t, AND_t, OR_t, NOT_t, NONE_t } OPERATOR;
 
 //char lexStr[100];
-char lexID[33]; 
+//char lexID[33]; 
 char tmpStr[100];
 char dimStr[100];
 char idStr[33];

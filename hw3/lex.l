@@ -17,10 +17,9 @@ int Opt_Symbol = 1;
 int linenum = 1;
 char buf[MAX_LINE_LENG];
 char strContent[MAX_LINE_LENG];
-
+char lexID[33];
 char lexStr[100];
 
-char tmp[33];
 typedef struct ids{
 	char id_name[256];
 	int freq;
@@ -408,9 +407,8 @@ float scientificToFloat( const char *str );
 		}
 		memset( lexID, 0, sizeof(lexID) );
 		strncpy( lexID, yytext, 32 );
-
 		tokenString("id",lexID);	//tokenString("id",yytext);	
-		yylval.lexeme = strdup( lexID );
+		strcpy( yylval.strSmall, lexID );	//yylval.lexeme = strdup( lexID );
 		return ID;
 	}
 .	{

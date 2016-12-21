@@ -20,7 +20,7 @@ extern char buf[256];
 %}
 
 %union {
-	char *lexeme;
+	char strSmall[33];
 	char str[100];
 	//arrEntry oneArr;
 	struct arrEntry{ char arrID[33]; char arrDim[100]; } oneArr;
@@ -34,7 +34,7 @@ extern char buf[256];
 	//struct expr_sem_node *exprNode;
 };
 
-%type <lexeme> identifier_list
+%type <strSmall> identifier_list
 %type <str> literal_const
 %type <str> dim
 %type <oneArr> array_decl
@@ -42,7 +42,7 @@ extern char buf[256];
 //%type <scalarType> scalar_type;
 
 
-%token <lexeme> ID 
+%token <strSmall> ID 
 %token <str> INT_CONST
 %token <str> FLOAT_CONST
 %token <str> SCIENTIFIC
@@ -146,7 +146,7 @@ var_decl : scalar_type identifier_list SEMICOLON
 		 ;
 
 identifier_list : identifier_list COMMA ID { 
-					$$ = $3; //appendIdList($1, $3); 
+					strcpy($$, $3);//$$ = $3; //appendIdList($1, $3); 
 					insertEntry($3);
 				}
 		 		| identifier_list COMMA ID ASSIGN_OP logical_expression { insertEntry($3); }

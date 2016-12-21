@@ -22,8 +22,7 @@ extern char buf[256];
 %union {
 	char strSmall[33];
 	char str[100];
-	//arrEntry oneArr;
-	struct arrEntry{ char arrID[33]; char arrDim[100]; } oneArr;
+	struct arrEntry{ char arrID[33]; char arrDim[30]; } oneArr;
 	//int scalarType;
 		///SEMTYPE type;
 	//struct ConstAttr *constVal;
@@ -150,16 +149,12 @@ identifier_list : identifier_list COMMA ID {
 					insertEntry($3);
 				}
 		 		| identifier_list COMMA ID ASSIGN_OP logical_expression { insertEntry($3); }
-				| identifier_list COMMA array_decl ASSIGN_OP initial_array //?array
-				| identifier_list COMMA array_decl 
-				| array_decl ASSIGN_OP initial_array
+				| identifier_list COMMA array_decl ASSIGN_OP initial_array { insertArrayEntry($3.arrID, $3.arrDim); }
+				| identifier_list COMMA array_decl { insertArrayEntry($3.arrID, $3.arrDim); }
+				| array_decl ASSIGN_OP initial_array { insertArrayEntry($1.arrID, $1.arrDim); }
 				| array_decl { insertArrayEntry($1.arrID, $1.arrDim); }
 				| ID ASSIGN_OP logical_expression { insertEntry($1); }
-				| ID { 
-					//$$ = createIdList($1); 
-					insertEntry($1);
-					printf("line %d:\tinsertEntry, type = %s\n",linenum, curType);
-				 }
+				| ID { insertEntry($1); } //$$ = createIdList($1); 
 				;
 
 initial_array : L_BRACE literal_list R_BRACE
@@ -329,11 +324,11 @@ dimension : dimension ML_BRACE logical_expression MR_BRACE
 		  | ML_BRACE logical_expression MR_BRACE
 		  ;
 
-scalar_type : INT //{ sprintf(curType, "int"); }
-			| DOUBLE //{ sprintf(curType, "double"); }//curScalarType = 2; }
-			| STRING //{ sprintf(curType, "string"); }//curScalarType = 3; }
-			| BOOL //{ sprintf(curType, "bool"); }//curScalarType = 4; }
-			| FLOAT //{ sprintf(curType, "float"); }//curScalarType = 5;  }
+scalar_type : INT { sprintf(curType, "int"); }
+			| DOUBLE { sprintf(curType, "double"); }//curScalarType = 2; }
+			| STRING { sprintf(curType, "string"); }//curScalarType = 3; }
+			| BOOL { sprintf(curType, "bool"); }//curScalarType = 4; }
+			| FLOAT { sprintf(curType, "float"); }//curScalarType = 5;  }
 			;
  
 literal_const : INT_CONST { strcpy($$, $1); }//printf("INT_CONST: %s \n", $1);}// {$$ = $1;}//{ printf("INT_CONST: %s \n", $1);}

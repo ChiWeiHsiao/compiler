@@ -30,7 +30,7 @@ union SymbolAttr {
 struct SymbolEntry{
 	char name[33];
 	int level;//global=0, local=1,2,3... 
-	char type[10];//int type; // 存成 char[100]? int, int[10];
+	char type[30];//int type; // 存成 char[100]? int, int[10];
 	//int type;// token INT 	 //int=0, float=1, double=2, bool=3, string=4 or the signature of an array=5. ex. float, int[10]
 	char kind[10];//function, parameter, variable, constant  ////SEMTYPE category;
 	char attribute[15];

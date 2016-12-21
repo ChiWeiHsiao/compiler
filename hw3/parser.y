@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include "ds.h"
 #include "table.h"
+#include "check.h"
+
 
 extern int Opt_Source;
 extern int Opt_Token;
@@ -17,11 +19,29 @@ extern char buf[256];
 
 %}
 
-%token	ID
-%token	INT_CONST
-%token	FLOAT_CONST
-%token	SCIENTIFIC
-%token	STR_CONST
+%union {
+	char *lexeme;
+	char str[100];
+	//int scalarType;
+		///SEMTYPE type;
+	//struct ConstAttr *constVal;
+	//struct PType *ptype;
+	//struct param_sem *par;
+	//struct expr_sem *exprs;
+	/*struct var_ref_sem *varRef; */
+	//struct expr_sem_node *exprNode;
+};
+
+%type <lexeme> identifier_list
+%type <str> literal_const
+//%type <scalarType> scalar_type;
+
+
+%token <lexeme> ID 
+%token <str> INT_CONST
+%token <str> FLOAT_CONST
+%token <str> SCIENTIFIC
+%token <str> STR_CONST
 
 %token	LE_OP
 %token	NE_OP
@@ -36,16 +56,16 @@ extern char buf[256];
 %token	DO
 %token	IF
 %token	ELSE
-%token	TRUE
-%token	FALSE
+%token	<str> TRUE
+%token	<str> FALSE
 %token	FOR
 %token	INT
-%token	PRINT
 %token	BOOL
-%token	VOID
 %token	FLOAT
 %token	DOUBLE
 %token	STRING
+%token	PRINT
+%token	VOID
 %token	CONTINUE
 %token	BREAK
 %token	RETURN
@@ -120,14 +140,21 @@ parameter_list : parameter_list COMMA scalar_type ID
 var_decl : scalar_type identifier_list SEMICOLON
 		 ;
 
-identifier_list : identifier_list COMMA ID
-		 		| identifier_list COMMA ID ASSIGN_OP logical_expression
-				| identifier_list COMMA array_decl ASSIGN_OP initial_array
-				| identifier_list COMMA array_decl
+identifier_list : identifier_list COMMA ID { 
+					$$ = $3; //appendIdList($1, $3); 
+					insertEntry($3);
+				}
+		 		| identifier_list COMMA ID ASSIGN_OP logical_expression { insertEntry($3); }
+				| identifier_list COMMA array_decl ASSIGN_OP initial_array //?array
+				| identifier_list COMMA array_decl 
 				| array_decl ASSIGN_OP initial_array
 				| array_decl
-				| ID ASSIGN_OP logical_expression
-				| ID
+				| ID ASSIGN_OP logical_expression { insertEntry($1); }
+				| ID { 
+					//$$ = createIdList($1); 
+					insertEntry($1);
+					printf("line %d:\tinsertEntry, type = %d\n",linenum, curScalarType);
+					}
 				;
 
 initial_array : L_BRACE literal_list R_BRACE
@@ -135,7 +162,7 @@ initial_array : L_BRACE literal_list R_BRACE
 
 literal_list : literal_list COMMA logical_expression
 			 | logical_expression
-                         | 
+             | 
 			 ;
 
 const_decl : CONST scalar_type const_list SEMICOLON;
@@ -152,7 +179,7 @@ dim : dim ML_BRACE INT_CONST MR_BRACE
 	| ML_BRACE INT_CONST MR_BRACE
 	;
 
-compound_statement : L_BRACE { pushTable(); printf("%d\n",curLevel); } var_const_stmt_list R_BRACE
+compound_statement : L_BRACE { pushTable(); } var_const_stmt_list R_BRACE
 				   ;
 
 var_const_stmt_list : var_const_stmt_list statement	
@@ -293,24 +320,22 @@ dimension : dimension ML_BRACE logical_expression MR_BRACE
 		  | ML_BRACE logical_expression MR_BRACE
 		  ;
 
-
-
-scalar_type : INT
-			| DOUBLE
-			| STRING
-			| BOOL
-			| FLOAT
+scalar_type : INT { curScalarType = 1; }
+			| DOUBLE { curScalarType = 2; }
+			| STRING { curScalarType = 3; }
+			| BOOL { curScalarType = 4; }
+			| FLOAT { curScalarType = 5;  }
 			;
  
-literal_const : INT_CONST
-			  | SUB_OP INT_CONST
-			  | FLOAT_CONST
-			  | SUB_OP FLOAT_CONST
-			  | SCIENTIFIC
-			  | SUB_OP SCIENTIFIC
-			  | STR_CONST
-			  | TRUE
-			  | FALSE
+literal_const : INT_CONST { strcpy($$, $1); }//printf("INT_CONST: %s \n", $1);}// {$$ = $1;}//{ printf("INT_CONST: %s \n", $1);}
+			  | SUB_OP INT_CONST { sprintf(tmpStr, "-%s", $2); strcpy($$,tmpStr); }
+			  | FLOAT_CONST { strcpy($$, $1); }
+			  | SUB_OP FLOAT_CONST { sprintf(tmpStr, "-%s", $2); strcpy($$,tmpStr); }
+			  | SCIENTIFIC { strcpy($$, $1); }
+			  | SUB_OP SCIENTIFIC { sprintf(tmpStr, "-%s", $2); strcpy($$,tmpStr); }
+			  | STR_CONST { strcpy($$, $1); }
+			  | TRUE { strcpy($$, $1); }// printf("bool_CONST: %s \n", l);}// printf("bool_CONST: %s \n", $$);}
+			  | FALSE { strcpy($$, $1); }//{ strcpy($$, "false");  printf("bool_CONST: %s \n", $$);}
 			  ;
 %%
 

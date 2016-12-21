@@ -1,6 +1,8 @@
 %{
 
 #include "y.tab.h"
+#include "ds.h"
+#include <math.h>
 
 #define LIST                strcat(buf, yytext)
 #define token(t)            {LIST; if (Opt_Token) printf("<%s>\n", #t);}
@@ -15,6 +17,7 @@ int Opt_Symbol = 1;
 int linenum = 1;
 char buf[MAX_LINE_LENG];
 char strContent[MAX_LINE_LENG];
+char tmp[33];
 typedef struct ids{
 	char id_name[256];
 	int freq;
@@ -23,6 +26,8 @@ typedef struct ids{
 id *id_head;
 void set(id **, char *);
 id *new_id();
+float scientificToFloat( const char *str );
+
 %}
 
 %x PRAGMA
@@ -243,9 +248,21 @@ id *new_id();
 
 "else"	{tokenString("KW", yytext);	return ELSE;}
 
-"true"	{tokenString("KW", yytext);	return TRUE;}
+"true"	{
+		 tokenString("KW", yytext);
+		 memset( lexStr, 0, sizeof(lexStr) );
+		 strncpy( lexStr, "TRUE" , 99 );
+		 strcpy( yylval.str, lexStr);
+		 return TRUE;
+		}
 
-"false"	{tokenString("KW", yytext);	return FALSE;}
+"false"	{
+		tokenString("KW", yytext);	
+		memset( lexStr, 0, sizeof(lexStr) );
+		strncpy( lexStr, "FALSE" , 99 );
+		strcpy( yylval.str, lexStr);
+		return FALSE;
+		}
 
 "for"	{tokenString("KW", yytext);	return FOR;}
 
@@ -272,15 +289,29 @@ id *new_id();
 "const"		{tokenString("KW", yytext);	return CONST;}
 	
 -?0 |
-[1-9][0-9]* {
-		tokenString("integer", yytext);	return INT_CONST;
+[1-9][0-9]* {		
+		memset( lexStr, 0, sizeof(lexStr) );
+		strncpy( lexStr, yytext, 99 );
+		tokenString("integer", lexStr);	
+		strcpy( yylval.str, lexStr);
+		//yylval.str = strdup( lexStr ); //yylval.intVal = atoi(yytext);
+		return INT_CONST;
 	}
+
 [0-9]+\.[0-9]+	{
-		tokenString("float", yytext);	return FLOAT_CONST;
+		memset( lexStr, 0, sizeof(lexStr) );
+		strncpy( lexStr, yytext, 99 );
+		tokenString("float", yytext);	
+		strcpy( yylval.str, lexStr);//yylval.realVal = atof(yytext);
+		return FLOAT_CONST;
 	}
 
 ([0-9]+|([0-9]*\.[0-9]+))([eE][-+]?[0-9]+)	{
-		tokenString("scientific", yytext);	return SCIENTIFIC;
+		memset( lexStr, 0, sizeof(lexStr) );
+		strncpy( lexStr, yytext, 99 );
+		tokenString("scientific", yytext);
+		strcpy( yylval.str, lexStr);//yylval.realVal = scientificToFloat(yytext); 
+		return SCIENTIFIC;
 	}
 "\""	{ 
 		LIST;
@@ -325,6 +356,8 @@ id *new_id();
 <STR>\"	{
 		//LIST;
 		//strcat( buf, "\"");
+		//yylval.lexeme = strdup(strContent);
+		strcpy( yylval.str, strContent );
 		if( Opt_Token)
 			tokenString("string", strContent);
 		BEGIN INITIAL;
@@ -370,7 +403,12 @@ id *new_id();
 		if(Opt_Statistic){
 			set(&id_head,yytext);
 		}
-		tokenString("id",yytext);	return ID;
+		memset( lexID, 0, sizeof(lexID) );
+		strncpy( lexID, yytext, 32 );
+
+		tokenString("id",lexID);	//tokenString("id",yytext);	
+		yylval.lexeme = strdup( lexID );
+		return ID;
 	}
 .	{
 		printf("Error at line %d: %s\n",linenum, yytext);
@@ -437,5 +475,23 @@ id *new_id()
 	memset(temp->id_name, 0, 256);
 	temp->freq = 0;
 	return temp;
+}
+
+//?
+float scientificToFloat( const char *str )
+{
+	float fraction;
+	int exponent;
+	char buf[256];
+	strcpy( buf, str );
+	char *token = strtok( buf,"Ee \t\n");
+	fraction = atof(token);
+	token = strtok( NULL, "Ee \t\n" );
+	exponent = atoi( token );
+
+	if( exponent != 0 )
+		fraction *= pow(10, exponent);
+
+	return fraction;
 }
 			

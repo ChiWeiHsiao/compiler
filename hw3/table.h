@@ -2,6 +2,11 @@
 #define _TABLE_H_
 #include "ds.h"
 
-int curLevel;//scopem
+void InitTable();
 void pushTable();
+void popTable(int scope);
+void printTable(int scope);
+void insertEntry(const char *str);
+void insertArray(const char *str, const char *dim);
+
 #endif

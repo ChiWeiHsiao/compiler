@@ -10,10 +10,10 @@
 #define tokenString(t, s)   {LIST; if (Opt_Token) printf("<%s:%s>\n", t, s);}
 #define MAX_LINE_LENG 256
 #define MAX_ID_LENG 256 
-int Opt_Source = 1;
-int Opt_Token = 1;
-int Opt_Statistic = 1;
-int Opt_Symbol = 1;
+int Opt_Source = 0;
+int Opt_Token = 0;
+int Opt_Statistic = 0;
+int Opt_Symbol = 0;
 int linenum = 1;
 char buf[MAX_LINE_LENG];
 char strContent[MAX_LINE_LENG];

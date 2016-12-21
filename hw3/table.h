@@ -4,9 +4,10 @@
 
 void InitTable();
 void pushTable();
-void popTable(int scope);
-void printTable(int scope);
-void insertEntry(const char *str);
-void insertArrayEntry(const char *id, const char *dim);
+void popTable();
+void printEntry(int ptr);
+void insertEntry(const char *name, const char *kind);
+void insertArrayEntry(const char *name, const char *dim, const char *kind);
+void insertEntryWithAttr( const char *name, const char *kind, const char *attr );
 
 #endif

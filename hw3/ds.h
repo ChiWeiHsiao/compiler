@@ -2,31 +2,21 @@
 #define _DS_H_
 
 #define MAX_ENTRY_NUM 1000
-
+#define MAX_STRING_POOL 1000
 #include <stdbool.h>
 
 typedef enum { VOID_t, INTEGER_t, BOOLEAN_t, STRING_t, REAL_t, ARRAY_t, PROGRAM_t, FUNCTION_t, \
 VARIABLE_t, PARAMETER_t, CONSTANT_t, ERROR_t, ID_LIST, LOOPVAR_t } SEMTYPE;
 typedef enum { ADD_t, SUB_t, MUL_t, DIV_t, MOD_t, LT_t, LE_t, EQ_t, GE_t, GT_t, NE_t, AND_t, OR_t, NOT_t, NONE_t } OPERATOR;
 
-//char lexStr[100];
-//char lexID[33]; 
 char tmpStr[100];
 char dimStr[100];
 char idStr[33];
 typedef struct anArray { char arrID[33]; char arrDim[100]; }arrEntry;
-//struct arrEntry curArr;
 
 int curLevel;//scope
+char curType[30]; // use global variable to record type
 //int curScalarType;//INT=1, DOUBLE=2, STRING=3, BOOL=4, FLOAT=5 
-char curType[30];
-
-/*
-union SymbolAttr {
-	struct ConstAttr constVal;
-	struct FuncAttr formalParam;
-};*/
- //use global variables to implement?
 struct SymbolEntry{
 	char name[33];
 	int level;//global=0, local=1,2,3... 
@@ -41,7 +31,20 @@ struct SymbolEntry stack[MAX_ENTRY_NUM];//use level to decide pop
 int ptrStack;
 
 
+/*struct {
+    int cnt;
+    const char* pool[MAX_STRING_POOL];
+} errorPool;
 
+typedef struct {
+    bool isDeclare;
+    typeList_t* pTypeList; 
+    int retType;
+    bool paramAddOK;
+} funcOption_t;
+
+funcOption_t funcOption;
+*/
 
 
 

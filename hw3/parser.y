@@ -106,7 +106,7 @@ extern char buf[256];
 %start program
 %%
 
-program :  { InitTable(); } decl_list funct_def decl_and_def_list 
+program :  { InitTable(); } decl_list funct_def decl_and_def_list { popTable(); }
            ;
 
 decl_list : decl_list var_decl
@@ -146,15 +146,15 @@ var_decl : scalar_type identifier_list SEMICOLON
 
 identifier_list : identifier_list COMMA ID { 
 					strcpy($$, $3);//$$ = $3; //appendIdList($1, $3); 
-					insertEntry($3);
+					insertEntry($3, "variable");
 				}
-		 		| identifier_list COMMA ID ASSIGN_OP logical_expression { insertEntry($3); }
-				| identifier_list COMMA array_decl ASSIGN_OP initial_array { insertArrayEntry($3.arrID, $3.arrDim); }
-				| identifier_list COMMA array_decl { insertArrayEntry($3.arrID, $3.arrDim); }
-				| array_decl ASSIGN_OP initial_array { insertArrayEntry($1.arrID, $1.arrDim); }
-				| array_decl { insertArrayEntry($1.arrID, $1.arrDim); }
-				| ID ASSIGN_OP logical_expression { insertEntry($1); }
-				| ID { insertEntry($1); } //$$ = createIdList($1); 
+		 		| identifier_list COMMA ID ASSIGN_OP logical_expression { insertEntry($3, "variable"); }
+				| identifier_list COMMA array_decl ASSIGN_OP initial_array { insertArrayEntry($3.arrID, $3.arrDim,"variable"); }
+				| identifier_list COMMA array_decl { insertArrayEntry($3.arrID, $3.arrDim, "variable"); }
+				| array_decl ASSIGN_OP initial_array { insertArrayEntry($1.arrID, $1.arrDim, "variable"); }
+				| array_decl { insertArrayEntry($1.arrID, $1.arrDim, "variable"); }
+				| ID ASSIGN_OP logical_expression { insertEntry($1, "variable"); }
+				| ID { insertEntry($1, "variable"); } //$$ = createIdList($1); 
 				;
 
 initial_array : L_BRACE literal_list R_BRACE
@@ -167,8 +167,8 @@ literal_list : literal_list COMMA logical_expression
 
 const_decl : CONST scalar_type const_list SEMICOLON;
 
-const_list : const_list COMMA ID ASSIGN_OP literal_const
-		   | ID ASSIGN_OP literal_const
+const_list : const_list COMMA ID ASSIGN_OP literal_const { insertEntryWithAttr( $3, "constant", $5 ); }
+		   | ID ASSIGN_OP literal_const { insertEntryWithAttr( $1, "constant", $3 ); }
                     
 		   ;
 
@@ -183,7 +183,11 @@ array_decl : ID dim
 dim : dim ML_BRACE INT_CONST MR_BRACE { sprintf($$, "%s[%s]", $1, $3); }//printf("append dimStr: %s\n", $$);}//sprintf(dimStr, "%s[%s]", dimStr, $3);
 	| ML_BRACE INT_CONST MR_BRACE { sprintf( $$, "[%s]", $2); }//sprintf(dimStr, "[%s]", $2); }
 
-compound_statement : L_BRACE { pushTable(); } var_const_stmt_list R_BRACE
+compound_statement : L_BRACE { pushTable(); } var_const_stmt_list R_BRACE {
+					 printf("\n\nline:%d, ptrStack=%d,curLevel=%d\n", linenum, ptrStack, curLevel); 
+					 
+					 popTable(); 
+					}
 				   ;
 
 var_const_stmt_list : var_const_stmt_list statement	
@@ -325,9 +329,9 @@ dimension : dimension ML_BRACE logical_expression MR_BRACE
 		  ;
 
 scalar_type : INT { sprintf(curType, "int"); }
-			| DOUBLE { sprintf(curType, "double"); }//curScalarType = 2; }
-			| STRING { sprintf(curType, "string"); }//curScalarType = 3; }
-			| BOOL { sprintf(curType, "bool"); }//curScalarType = 4; }
+			| DOUBLE { sprintf(curType, "double"); }
+			| STRING { sprintf(curType, "string"); }
+			| BOOL { sprintf(curType, "bool"); }
 			| FLOAT { sprintf(curType, "float"); }//curScalarType = 5;  }
 			;
  
@@ -338,8 +342,8 @@ literal_const : INT_CONST { strcpy($$, $1); }//printf("INT_CONST: %s \n", $1);}/
 			  | SCIENTIFIC { strcpy($$, $1); }
 			  | SUB_OP SCIENTIFIC { sprintf(tmpStr, "-%s", $2); strcpy($$,tmpStr); }
 			  | STR_CONST { strcpy($$, $1); }
-			  | TRUE { strcpy($$, $1); }// printf("bool_CONST: %s \n", l);}// printf("bool_CONST: %s \n", $$);}
-			  | FALSE { strcpy($$, $1); }//{ strcpy($$, "false");  printf("bool_CONST: %s \n", $$);}
+			  | TRUE { strcpy($$, "true"); }//$1); }// printf("bool_CONST: %s \n", l);}// printf("bool_CONST: %s \n", $$);}
+			  | FALSE { strcpy($$, "false"); }//{ strcpy($$, "false");  printf("bool_CONST: %s \n", $$);}
 			  ;
 %%
 

@@ -78,20 +78,22 @@ void printEntry(int ptr){
 	printf("\n");
 }
 
-void insertFunctEntry( bool toDefine, const char *name, const char *attr ){
-	//printf("insertEntry, mof type = %s\n",curType);
-	if( toDefine ){
-		;//check if is declare before;
-		//if declared
-		//check match
-		//if(WRONG)	printErr, return
+int searchTable( struct SymbolEntry target ){
+	int level = target.level;
+	int it = ptrStack - 1;
+	printf("Search start...\n"); //de
+	
+	while( stack[ it ].level == level ){
+		if( strcmp( stack[ it ].name, target.name ) == 0 ){
+			printf("found same name!%s\n", target.name); //de
+			return it;
+		}
+		it--;
 	}
-	else{
-		;//is declare
-		//check if defin or declare before
-		//if(WRONG)	printErr, return
-	}
+	return -1;
+}
 
+void insertFunctEntry( bool toDefine, const char *name, const char *attr ){
 	//printf("insertEntry, mof type = %s\n",curType);
 	struct SymbolEntry newEntry;
 	strcpy( newEntry.name, name );
@@ -104,10 +106,40 @@ void insertFunctEntry( bool toDefine, const char *name, const char *attr ){
 		strncpy( newEntry.attribute, attr, 49);
 	}
 	newEntry.level = curLevel;
-	stack[ ptrStack++ ] = newEntry;
-	#ifdef debug
-	printf("level:%d, name:%s, type:%s, kind:%s, attr:%s  \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind, stack[ptrStack-1].attribute );
-	#endif
+	newEntry.defined = toDefine; //name it match?
+	newEntry.declared = !toDefine; 
+
+	int ptrFound = searchTable( newEntry );
+	if( ptrFound == -1) goto L_ok;
+	struct SymbolEntry found = stack[ptrFound];
+
+	if( toDefine ){
+		if( found.defined ){
+			printf("\n##########Error at Line #%d: Function is defined twice ##########\n\n", linenum);
+			return;
+		}
+		if( found.declared ){ //check if is declare before;
+			if( ! checkFunctMatch( found, newEntry ) ){ 
+				printf("\n##########Error at Line #%d: Function definition does not match the previous declaration ##########\n\n", linenum);
+				return;
+			}
+		}
+		//if declared
+		//check match
+		//if(WRONG)	printErr, return
+	}
+	else{	// want to declare a function, sholdn't be declared or defined previously
+		if( found.declared ) printf("\n##########Error at Line #%d: Function should not be declared twice ##########\n\n", linenum);
+		else if( found.defined ) printf("\n##########Error at Line #%d: Function declaration must before its definition ##########\n\n", linenum);
+	}
+
+	L_ok:
+		stack[ ptrStack++ ] = newEntry;
+		printf("OK Funct, level:%d, name:%s, type:%s, kind:%s, attr:%s  \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind, stack[ptrStack-1].attribute );
+		
+		#ifdef debug
+		printf("level:%d, name:%s, type:%s, kind:%s, attr:%s  \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind, stack[ptrStack-1].attribute );
+		#endif
 }
 
 void insertEntry( const char *name, const char *kind ){

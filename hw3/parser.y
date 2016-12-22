@@ -162,9 +162,6 @@ parameter_list : parameter_list COMMA scalar_type ID { curParams.cnt++; sprintf(
 			   	{	//int[2]
  			   		curParams.cnt++; 
  			   		sprintf( curParams.str, "%s,%s%s", curParams.str, curType, $4.arrDim );
-			   		#ifdef debug
- 			   		printf("#params:%d\t%s\n", curParams.cnt, curParams.str); 
-			   		#endif
 			   	}
 			   | scalar_type array_decl { curParams.cnt = 0; sprintf( curParams.str, "%s%s", curType, $2.arrDim ); strcpy( functType, lastType );}
 			   | scalar_type ID { curParams.cnt = 0; strcpy( curParams.str, curType ); strcpy( functType, lastType ); }	//Record the last type here

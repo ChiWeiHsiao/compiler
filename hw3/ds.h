@@ -28,6 +28,8 @@ struct SymbolEntry{
 	//int type;// token INT 	 //int=0, float=1, double=2, bool=3, string=4 or the signature of an array=5. ex. float, int[10]
 	char kind[10];//function, parameter, variable, constant  ////SEMTYPE category;
 	char attribute[50]; //15?
+	bool declared;
+	bool defined;
 };
 struct SymbolEntry stack[MAX_ENTRY_NUM];//use level to decide pop
 int ptrStack;

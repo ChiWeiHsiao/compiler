@@ -10,6 +10,10 @@
 
 extern int linenum;
 
+bool checkFunctMatch( struct SymbolEntry declareF, struct SymbolEntry defineF ){
+	
+	return true;
+}
 
 /*
 void init_funcOption(){
@@ -56,9 +60,6 @@ bool show_errors(){
     return true;
 }
 */
-bool isRedeclare(){
-	return false;
-}
 
 /*struct idNode *createIdList( const char *str ) 
 {

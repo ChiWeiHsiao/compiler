@@ -10,6 +10,7 @@ extern int linenum;
 extern int Opt_Symbol;
 
 void InitTable(){
+	noErr = true;
 	curLevel = 0;
 	ptrStack = 0;
 	for(int i = 0; i < MAX_ENTRY_NUM; i++ ){
@@ -33,13 +34,11 @@ void popTable(){
 	if( !Opt_Symbol ) return;
 	//pop until the next entry's level != scope
 	int nowLevel = stack[ ptrStack-1 ].level;
-	//int iter = ptrStack;
 	printf("=======================================================================================\n");
 	 // Name [29 blanks] Kind [7 blanks] Level [7 blank] Type [15 blanks] Attribute [15 blanks]
 	printf("Name                             Kind       Level       Type               Attribute               \n");
 	printf("---------------------------------------------------------------------------------------\n");
 	int to =  ptrStack-1 ;
-
 	while(stack[ ptrStack-1 ].level == nowLevel){
 		if(ptrStack == 0 ) break;
 		ptrStack--;
@@ -47,8 +46,9 @@ void popTable(){
 	int from =  ptrStack ; //?? from = movie, to = abc  //printf("from:%d, to:%d\n", from, to);
 	for( int i = from; i <= to; i++)
 		printEntry(i);
-	//printf("pop to :%d, level:%d\n", ptrStack, stack[ptrStack].level);
 	printf("======================================================================================\n");
+
+	curLevel--;
 }
 
 void printEntry(int ptr){
@@ -81,6 +81,9 @@ void printEntry(int ptr){
 void insertEntry( const char *name, const char *kind ){
 	//printf("insertEntry, mof type = %s\n",curType);
 	struct SymbolEntry newEntry;
+
+	newEntry.isDeclare = true;
+
 	strcpy( newEntry.name, name );
 	strcpy( newEntry.type, curType );//newEntry.type = curScalarType;
 	strcpy( newEntry.kind, kind );
@@ -96,6 +99,9 @@ void insertEntry( const char *name, const char *kind ){
 
 void insertArrayEntry( const char *name, const char *dim, const char *kind ){
 	struct SymbolEntry newEntry;
+
+	newEntry.isDeclare = true;
+
 	strcpy( newEntry.name, name );
 	sprintf( newEntry.type, "%s%s", curType, dim );// 把 dim  資訊存到 type //newEntry.type = curScalarType;
 	strcpy( newEntry.kind, kind );
@@ -110,6 +116,9 @@ void insertArrayEntry( const char *name, const char *dim, const char *kind ){
 void insertEntryWithAttr( const char *name, const char *kind, const char *attr ){
 	//printf("insertEntry, mof type = %s\n",curType);
 	struct SymbolEntry newEntry;
+
+	newEntry.isDeclare = true;
+
 	strcpy( newEntry.name, name );
 	strcpy( newEntry.type, curType );//newEntry.type = curScalarType;
 	strcpy( newEntry.kind, kind );

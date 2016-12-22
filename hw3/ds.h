@@ -9,6 +9,7 @@ typedef enum { VOID_t, INTEGER_t, BOOLEAN_t, STRING_t, REAL_t, ARRAY_t, PROGRAM_
 VARIABLE_t, PARAMETER_t, CONSTANT_t, ERROR_t, ID_LIST, LOOPVAR_t } SEMTYPE;
 typedef enum { ADD_t, SUB_t, MUL_t, DIV_t, MOD_t, LT_t, LE_t, EQ_t, GE_t, GT_t, NE_t, AND_t, OR_t, NOT_t, NONE_t } OPERATOR;
 
+bool noErr;
 char tmpStr[100];
 char dimStr[100];
 char idStr[33];
@@ -24,12 +25,17 @@ struct SymbolEntry{
 	//int type;// token INT 	 //int=0, float=1, double=2, bool=3, string=4 or the signature of an array=5. ex. float, int[10]
 	char kind[10];//function, parameter, variable, constant  ////SEMTYPE category;
 	char attribute[15];
-	//attribute, Other attributes of the symbol, 
-	//such as the value of a constant, arguments of function
+	bool isDeclare;	//Only Used for "funct declare before define"
 };
 struct SymbolEntry stack[MAX_ENTRY_NUM];//use level to decide pop
 int ptrStack;
 
+//char curFunctParams[10][10];
+struct FunctParams{
+	int cnt;
+	char str[100];
+};
+struct FunctParams curParams;
 
 /*struct {
     int cnt;

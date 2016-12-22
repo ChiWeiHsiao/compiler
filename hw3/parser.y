@@ -7,6 +7,7 @@
 #include "table.h"
 #include "check.h"
 
+#define debug
 
 extern int Opt_Source;
 extern int Opt_Token;
@@ -123,22 +124,30 @@ decl_and_def_list : decl_and_def_list var_decl
 				  | 
 				  ;
 
-funct_def : scalar_type ID L_PAREN R_PAREN compound_statement
+
+funct_def : scalar_type ID L_PAREN R_PAREN { printf("Define a Funct:%s\n",$2); insertEntry( $2, "function" ); } compound_statement  
 		  | scalar_type ID L_PAREN parameter_list R_PAREN  compound_statement
-		  | VOID ID L_PAREN R_PAREN compound_statement
-		  | VOID ID L_PAREN parameter_list R_PAREN compound_statement
+		  | VOID ID L_PAREN R_PAREN { sprintf(curType, "void"); insertEntry( $2, "function" ); } compound_statement 
+		  | VOID ID L_PAREN parameter_list R_PAREN { sprintf(curType, "void"); insertEntryWithAttr( $2, "function", curParams.str); } compound_statement
 		  ;
 
-funct_decl : scalar_type ID L_PAREN R_PAREN SEMICOLON
+funct_decl : scalar_type ID L_PAREN R_PAREN SEMICOLON 
 	 	   | scalar_type ID L_PAREN parameter_list R_PAREN SEMICOLON
-		   | VOID ID L_PAREN R_PAREN SEMICOLON
-		   | VOID ID L_PAREN parameter_list R_PAREN SEMICOLON
+		   | VOID ID L_PAREN R_PAREN SEMICOLON { sprintf(curType, "void"); }
+		   | VOID ID L_PAREN parameter_list R_PAREN SEMICOLON { sprintf(curType, "void");}
 		   ;
 
-parameter_list : parameter_list COMMA scalar_type ID
-			   | parameter_list COMMA scalar_type array_decl
-			   | scalar_type array_decl
-			   | scalar_type ID
+parameter_list : parameter_list COMMA scalar_type ID { curParams.cnt++; sprintf( curParams.str, "%s,%s", curParams.str, curType );  }
+			   | parameter_list COMMA scalar_type array_decl 
+			   	{	//int[2]
+ 			   		curParams.cnt++; 
+ 			   		sprintf( curParams.str, "%s,%s%s", curParams.str, curType, $4.arrDim );
+			   		#ifdef debug
+ 			   		printf("#params:%d\t%s\n", curParams.cnt, curParams.str); 
+			   		#endif
+			   	}
+			   | scalar_type array_decl { curParams.cnt = 1; sprintf( curParams.str, "%s%s", curType, $2.arrDim );}
+			   | scalar_type ID { curParams.cnt = 0; strcpy( curParams.str, curType ); }
 			   ;
 
 var_decl : scalar_type identifier_list SEMICOLON
@@ -172,11 +181,7 @@ const_list : const_list COMMA ID ASSIGN_OP literal_const { insertEntryWithAttr( 
                     
 		   ;
 
-array_decl : ID dim 
-			{ 
-				sprintf($$.arrID, "%s", $1); sprintf($$.arrDim, "%s", $2);  
-				printf("array_decl: %s%s\n", $$.arrID, $$.arrDim); 
-			}//sprintf(idStr, "%s", $1); }
+array_decl : ID dim { sprintf($$.arrID, "%s", $1); sprintf($$.arrDim, "%s", $2);  }//sprintf(idStr, "%s", $1); }
 			//{ strcpy( curArr.arrID, $1); strcpy( curArr.arrDim, );//不要用＄2，用global$2); printf("array_decl: %s%s\n", curArr.arrID, curArr.arrDim); }//sprintf(idStr, "%s", $1); }
 		   ;
 
@@ -184,9 +189,10 @@ dim : dim ML_BRACE INT_CONST MR_BRACE { sprintf($$, "%s[%s]", $1, $3); }//printf
 	| ML_BRACE INT_CONST MR_BRACE { sprintf( $$, "[%s]", $2); }//sprintf(dimStr, "[%s]", $2); }
 
 compound_statement : L_BRACE { pushTable(); } var_const_stmt_list R_BRACE {
-					 printf("\n\nline:%d, ptrStack=%d,curLevel=%d\n", linenum, ptrStack, curLevel); 
-					 
-					 popTable(); 
+					 popTable();
+					 #ifdef debug
+					 	printf("Compound_POP==line:%d, ptrStack=%d,curLevel=%d\n", linenum, ptrStack, curLevel); 
+					 #endif
 					}
 				   ;
 

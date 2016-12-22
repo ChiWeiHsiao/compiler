@@ -8,9 +8,9 @@
 
 #define debug
 
-#define SHOW_ERROR
-
 extern int linenum;
+
+
 /*
 void init_funcOption(){
     funcOption.isDeclare = false;

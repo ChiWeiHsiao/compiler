@@ -1,4 +1,5 @@
 *.out
+*.output
 *.zip
 *.o
 *.pdf
@@ -7,3 +8,4 @@
 *yy.c
 *tab.c
 *tab.h
+*sample*

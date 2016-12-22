@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "ds.h"
 
 extern int yyparse();
 extern FILE* yyin;
@@ -38,14 +39,11 @@ int  main( int argc, char **argv )
         }
 	}*/
 	
-	fprintf( stdout, "\n|--------------------------------|\n" );
-	fprintf( stdout, "|  There is no syntactic error!  |\n" );
-	fprintf( stdout, "|--------------------------------|\n" );
-
-
-	
-       
-
+	if( noErr ){
+		fprintf( stdout, "\n|-------------------------------------------|\n" );
+		fprintf( stdout, "| There is no syntactic and semantic error! |\n" );
+		fprintf( stdout, "|-------------------------------------------|\n" );
+	}
 	exit(0);
 }
 

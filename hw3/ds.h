@@ -17,6 +17,9 @@ typedef struct anArray { char arrID[33]; char arrDim[100]; }arrEntry;
 
 int curLevel;//scope
 char curType[30]; // use global variable to record type
+char lastType[30]; //避免 function 本身的 type 會被改成 parameter 的 type
+char functType[30];
+
 //int curScalarType;//INT=1, DOUBLE=2, STRING=3, BOOL=4, FLOAT=5 
 struct SymbolEntry{
 	char name[33];
@@ -24,8 +27,7 @@ struct SymbolEntry{
 	char type[30];//int type; // 存成 char[100]? int, int[10];
 	//int type;// token INT 	 //int=0, float=1, double=2, bool=3, string=4 or the signature of an array=5. ex. float, int[10]
 	char kind[10];//function, parameter, variable, constant  ////SEMTYPE category;
-	char attribute[15];
-	bool isDeclare;	//Only Used for "funct declare before define"
+	char attribute[50]; //15?
 };
 struct SymbolEntry stack[MAX_ENTRY_NUM];//use level to decide pop
 int ptrStack;
@@ -33,7 +35,7 @@ int ptrStack;
 //char curFunctParams[10][10];
 struct FunctParams{
 	int cnt;
-	char str[100];
+	char str[49];
 };
 struct FunctParams curParams;
 

@@ -125,16 +125,36 @@ decl_and_def_list : decl_and_def_list var_decl
 				  ;
 
 
-funct_def : scalar_type ID L_PAREN R_PAREN { printf("Define a Funct:%s\n",$2); insertEntry( $2, "function" ); } compound_statement  
-		  | scalar_type ID L_PAREN parameter_list R_PAREN  compound_statement
-		  | VOID ID L_PAREN R_PAREN { sprintf(curType, "void"); insertEntry( $2, "function" ); } compound_statement 
-		  | VOID ID L_PAREN parameter_list R_PAREN { sprintf(curType, "void"); insertEntryWithAttr( $2, "function", curParams.str); } compound_statement
+funct_def : scalar_type ID L_PAREN R_PAREN 
+			{
+				printf("Define a Funct:%s\n",$2); 
+				strcpy( functType, curType ); 
+				insertFunctEntry( true, $2, NULL );
+				//insertEntry( $2, "function" ); 
+			} compound_statement  
+		  | scalar_type ID L_PAREN parameter_list R_PAREN 
+		  	{
+		  		//strcpy( functType, lastType ) in parameter_list
+		  		insertFunctEntry( true, $2, curParams.str );//curParams.str 	//"params"
+		  	} compound_statement
+		  | VOID ID L_PAREN R_PAREN 
+		  	{ 
+		  		sprintf(functType, "void"); //strcpy( functType, curType ); 
+		  		insertFunctEntry( true, $2, NULL );
+		  		//insertEntry( $2, "function" ); 
+		  	} compound_statement 
+		  | VOID ID L_PAREN parameter_list R_PAREN 
+		  	{ 
+		  		sprintf(functType, "void"); //strcpy( functType, curType ); 
+		  		insertFunctEntry( true, $2, curParams.str );
+		  		//insertEntryWithAttr( $2, "function", curParams.str); 
+		  	} compound_statement
 		  ;
 
-funct_decl : scalar_type ID L_PAREN R_PAREN SEMICOLON 
-	 	   | scalar_type ID L_PAREN parameter_list R_PAREN SEMICOLON
-		   | VOID ID L_PAREN R_PAREN SEMICOLON { sprintf(curType, "void"); }
-		   | VOID ID L_PAREN parameter_list R_PAREN SEMICOLON { sprintf(curType, "void");}
+funct_decl : scalar_type ID L_PAREN R_PAREN SEMICOLON { strcpy( functType, curType ); insertFunctEntry( false, $2, NULL ); }
+	 	   | scalar_type ID L_PAREN parameter_list R_PAREN SEMICOLON { insertFunctEntry( false, $2, curParams.str ); }
+		   | VOID ID L_PAREN R_PAREN SEMICOLON { sprintf(functType, "void"); insertFunctEntry( false, $2, NULL ); }
+		   | VOID ID L_PAREN parameter_list R_PAREN SEMICOLON { sprintf(functType, "void"); insertFunctEntry( false, $2, curParams.str );}
 		   ;
 
 parameter_list : parameter_list COMMA scalar_type ID { curParams.cnt++; sprintf( curParams.str, "%s,%s", curParams.str, curType );  }
@@ -146,8 +166,8 @@ parameter_list : parameter_list COMMA scalar_type ID { curParams.cnt++; sprintf(
  			   		printf("#params:%d\t%s\n", curParams.cnt, curParams.str); 
 			   		#endif
 			   	}
-			   | scalar_type array_decl { curParams.cnt = 1; sprintf( curParams.str, "%s%s", curType, $2.arrDim );}
-			   | scalar_type ID { curParams.cnt = 0; strcpy( curParams.str, curType ); }
+			   | scalar_type array_decl { curParams.cnt = 0; sprintf( curParams.str, "%s%s", curType, $2.arrDim ); strcpy( functType, lastType );}
+			   | scalar_type ID { curParams.cnt = 0; strcpy( curParams.str, curType ); strcpy( functType, lastType ); }	//Record the last type here
 			   ;
 
 var_decl : scalar_type identifier_list SEMICOLON
@@ -334,11 +354,11 @@ dimension : dimension ML_BRACE logical_expression MR_BRACE
 		  | ML_BRACE logical_expression MR_BRACE
 		  ;
 
-scalar_type : INT { sprintf(curType, "int"); }
-			| DOUBLE { sprintf(curType, "double"); }
-			| STRING { sprintf(curType, "string"); }
-			| BOOL { sprintf(curType, "bool"); }
-			| FLOAT { sprintf(curType, "float"); }//curScalarType = 5;  }
+scalar_type : INT { strcpy(lastType, curType); sprintf(curType, "int"); }
+			| DOUBLE { strcpy(lastType, curType); sprintf(curType, "double"); }
+			| STRING { strcpy(lastType, curType); sprintf(curType, "string"); }
+			| BOOL { strcpy(lastType, curType); sprintf(curType, "bool"); }
+			| FLOAT { strcpy(lastType, curType); sprintf(curType, "float"); }//curScalarType = 5;  }
 			;
  
 literal_const : INT_CONST { strcpy($$, $1); }//printf("INT_CONST: %s \n", $1);}// {$$ = $1;}//{ printf("INT_CONST: %s \n", $1);}

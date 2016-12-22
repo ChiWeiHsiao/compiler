@@ -78,12 +78,41 @@ void printEntry(int ptr){
 	printf("\n");
 }
 
+void insertFunctEntry( bool toDefine, const char *name, const char *attr ){
+	//printf("insertEntry, mof type = %s\n",curType);
+	if( toDefine ){
+		;//check if is declare before;
+		//if declared
+		//check match
+		//if(WRONG)	printErr, return
+	}
+	else{
+		;//is declare
+		//check if defin or declare before
+		//if(WRONG)	printErr, return
+	}
+
+	//printf("insertEntry, mof type = %s\n",curType);
+	struct SymbolEntry newEntry;
+	strcpy( newEntry.name, name );
+	strcpy( newEntry.type, functType );	// because curType will be overwriten by param_list
+	strcpy( newEntry.kind, "function" );
+	if( !attr ){ //NULL, no parameter
+		memset(newEntry.attribute, '\0', sizeof(newEntry.attribute)); //clear
+	}
+	else{
+		strncpy( newEntry.attribute, attr, 49);
+	}
+	newEntry.level = curLevel;
+	stack[ ptrStack++ ] = newEntry;
+	#ifdef debug
+	printf("level:%d, name:%s, type:%s, kind:%s, attr:%s  \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind, stack[ptrStack-1].attribute );
+	#endif
+}
+
 void insertEntry( const char *name, const char *kind ){
 	//printf("insertEntry, mof type = %s\n",curType);
 	struct SymbolEntry newEntry;
-
-	newEntry.isDeclare = true;
-
 	strcpy( newEntry.name, name );
 	strcpy( newEntry.type, curType );//newEntry.type = curScalarType;
 	strcpy( newEntry.kind, kind );
@@ -99,9 +128,6 @@ void insertEntry( const char *name, const char *kind ){
 
 void insertArrayEntry( const char *name, const char *dim, const char *kind ){
 	struct SymbolEntry newEntry;
-
-	newEntry.isDeclare = true;
-
 	strcpy( newEntry.name, name );
 	sprintf( newEntry.type, "%s%s", curType, dim );// 把 dim  資訊存到 type //newEntry.type = curScalarType;
 	strcpy( newEntry.kind, kind );
@@ -116,9 +142,6 @@ void insertArrayEntry( const char *name, const char *dim, const char *kind ){
 void insertEntryWithAttr( const char *name, const char *kind, const char *attr ){
 	//printf("insertEntry, mof type = %s\n",curType);
 	struct SymbolEntry newEntry;
-
-	newEntry.isDeclare = true;
-
 	strcpy( newEntry.name, name );
 	strcpy( newEntry.type, curType );//newEntry.type = curScalarType;
 	strcpy( newEntry.kind, kind );

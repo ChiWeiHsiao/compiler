@@ -107,7 +107,7 @@ extern char buf[256];
 %start program
 %%
 
-program :  { InitTable(); } decl_list funct_def decl_and_def_list { popTable(); }
+program :  { InitTable(); } decl_list funct_def decl_and_def_list { popTable(); printNoError(); }
            ;
 
 decl_list : decl_list var_decl

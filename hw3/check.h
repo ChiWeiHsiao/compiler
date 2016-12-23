@@ -12,6 +12,11 @@ bool show_errors();
 */
 bool checkFunctMatch( struct SymbolEntry declareF, struct SymbolEntry defineF );
 
+bool coercion( struct SymbolEntry original, struct SymbolEntry goal );
+
+void printErr( const char *msg );
+
+void printNoError();
 //struct idNode *createIdList( const char *str );
 //void appendIdList( struct idNode *node, const char *str );
 

@@ -19,7 +19,8 @@ void InitTable(){
 		memset(stack[i].kind, '\0', sizeof(stack[i].kind)); 
 		memset(stack[i].attribute, '\0', sizeof(stack[i].attribute)); 
 		stack[i].level = -1;
-
+		stack[i].functDeclared = false;
+		stack[i].functDefined = false;
 	}
 	#ifdef debug
 	printf("...InitTable\n");
@@ -81,16 +82,13 @@ void printEntry(int ptr){
 int searchTable( struct SymbolEntry target ){
 	int level = target.level;
 	int it = ptrStack - 1;
-	printf("Search start...\n"); //de
 	
 	while( stack[ it ].level == level ){
-		if( strcmp( stack[ it ].name, target.name ) == 0 ){
-			printf("found same name!%s\n", target.name); //de
+		if( strcmp( stack[ it ].name, target.name ) == 0 )
 			return it;
-		}
 		it--;
 	}
-	return -1;
+	return -1;	//not found 
 }
 
 void insertFunctEntry( bool toDefine, const char *name, const char *attr ){
@@ -106,40 +104,38 @@ void insertFunctEntry( bool toDefine, const char *name, const char *attr ){
 		strncpy( newEntry.attribute, attr, 49);
 	}
 	newEntry.level = curLevel;
-	newEntry.defined = toDefine; //name it match?
-	newEntry.declared = !toDefine; 
+	newEntry.functDefined = toDefine; //name it match?
+	newEntry.functDeclared = !toDefine; 
 
+	//Semantic
 	int ptrFound = searchTable( newEntry );
-	if( ptrFound == -1) goto L_ok;
-	struct SymbolEntry found = stack[ptrFound];
+	if( ptrFound != -1){	//don't insert
+		struct SymbolEntry found = stack[ptrFound];
 
-	if( toDefine ){
-		if( found.defined ){
-			printf("\n##########Error at Line #%d: Function is defined twice ##########\n\n", linenum);
-			return;
-		}
-		if( found.declared ){ //check if is declare before;
-			if( ! checkFunctMatch( found, newEntry ) ){ 
-				printf("\n##########Error at Line #%d: Function definition does not match the previous declaration ##########\n\n", linenum);
+		if( toDefine ){
+			if( found.functDefined ){
+				printErr("Function is defined twice");
 				return;
 			}
+			else if( found.functDeclared ){ //check if is declare before;
+				if( ! checkFunctMatch( found, newEntry ) ){ 
+					printErr("Function definition does not match the previous declaration");
+					return;
+				}
+			}
+			else	
+				printErr("Names must be unique within a given scope");//used as a var / const name
 		}
-		//if declared
-		//check match
-		//if(WRONG)	printErr, return
+		else{	// want to declare a function, sholdn't be declared or defined previously
+			if( found.functDeclared ) printErr("Function should not be declared twice");
+			else if( found.functDefined ) printErr("Function declaration must before its definition");
+			else  printErr("Names must be unique within a given scope ");
+		}
 	}
-	else{	// want to declare a function, sholdn't be declared or defined previously
-		if( found.declared ) printf("\n##########Error at Line #%d: Function should not be declared twice ##########\n\n", linenum);
-		else if( found.defined ) printf("\n##########Error at Line #%d: Function declaration must before its definition ##########\n\n", linenum);
-	}
-
-	L_ok:
+	else{
 		stack[ ptrStack++ ] = newEntry;
-		printf("OK Funct, level:%d, name:%s, type:%s, kind:%s, attr:%s  \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind, stack[ptrStack-1].attribute );
-		
-		#ifdef debug
-		printf("level:%d, name:%s, type:%s, kind:%s, attr:%s  \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind, stack[ptrStack-1].attribute );
-		#endif
+		//printf("insert Funct, level:%d, name:%s, type:%s, kind:%s, attr:%s  \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind, stack[ptrStack-1].attribute );
+	}
 }
 
 void insertEntry( const char *name, const char *kind ){
@@ -150,12 +146,14 @@ void insertEntry( const char *name, const char *kind ){
 	strcpy( newEntry.kind, kind );
 	memset(newEntry.attribute, '\0', sizeof(newEntry.attribute)); //clear
 	newEntry.level = curLevel;
-	stack[ ptrStack++ ] = newEntry;
-	#ifdef debug
-	//for(int i=0; i<ptrStack; i++)
-		//printf("level:%d, name:%s, type:%s \n",stack[i].level, stack[i].name, stack[i].type );
-	printf("level:%d, name:%s, type:%s, kind:%s  \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind );
-	#endif
+	newEntry.functDeclared = false;
+	newEntry.functDefined = false;
+
+	int ptrFound = searchTable( newEntry );
+	if( ptrFound == -1) //not found
+		stack[ ptrStack++ ] = newEntry;
+	else
+		printErr("Names must be unique within a given scope ");
 }
 
 void insertArrayEntry( const char *name, const char *dim, const char *kind ){
@@ -165,10 +163,14 @@ void insertArrayEntry( const char *name, const char *dim, const char *kind ){
 	strcpy( newEntry.kind, kind );
 	memset(newEntry.attribute, '\0', sizeof(newEntry.attribute));  //clear
 	newEntry.level = curLevel;
-	stack[ ptrStack++ ] = newEntry;
-	#ifdef debug
-	printf("\t\tlevel:%d, name:%s, type:%s, kind:%s \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind );
-	#endif
+	newEntry.functDeclared = false;
+	newEntry.functDefined = false;
+
+	int ptrFound = searchTable( newEntry );
+	if( ptrFound == -1) //not found
+		stack[ ptrStack++ ] = newEntry;
+	else
+		printErr("Names must be unique within a given scope");
 }
 
 void insertEntryWithAttr( const char *name, const char *kind, const char *attr ){
@@ -179,7 +181,15 @@ void insertEntryWithAttr( const char *name, const char *kind, const char *attr )
 	strcpy( newEntry.kind, kind );
 	strcpy( newEntry.attribute, attr );
 	newEntry.level = curLevel;
-	stack[ ptrStack++ ] = newEntry;
+	newEntry.functDeclared = false;
+	newEntry.functDefined = false;
+	
+	int ptrFound = searchTable( newEntry );
+	if( ptrFound == -1)//not found
+		stack[ ptrStack++ ] = newEntry;
+	else
+		printErr("Names must be unique within a given scope");
+
 	#ifdef debug
 	printf("level:%d, name:%s, type:%s, kind:%s, attr:%s  \n",stack[ptrStack-1].level, stack[ptrStack-1].name, stack[ptrStack-1].type, stack[ptrStack-1].kind, stack[ptrStack-1].attribute );
 	#endif

@@ -38,12 +38,6 @@ int  main( int argc, char **argv )
             fprintf( stdout, "|---------------------------------------------|\n" );
         }
 	}*/
-	
-	if( noErr ){
-		fprintf( stdout, "\n|-------------------------------------------|\n" );
-		fprintf( stdout, "| There is no syntactic and semantic error! |\n" );
-		fprintf( stdout, "|-------------------------------------------|\n" );
-	}
 	exit(0);
 }
 

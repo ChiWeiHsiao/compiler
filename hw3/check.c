@@ -11,10 +11,29 @@
 extern int linenum;
 
 bool checkFunctMatch( struct SymbolEntry declareF, struct SymbolEntry defineF ){
-	
+	//defineF is later than declare, should match declare's type and attribute( paramerters )
+	if( strcmp( declareF.type, defineF.type ) == 0 && strcmp( declareF.attribute, defineF.attribute ) == 0 )
+		return true;
+	else
+		return false;
+}
+
+bool coercion( struct SymbolEntry original, struct SymbolEntry goal ){
 	return true;
 }
 
+void printErr( const char *msg ){
+	noErr = false;
+	printf("\n##########Error at Line #%d: %s ##########\n\n", linenum, msg);	
+}
+
+void printNoError(){
+	if( noErr ){
+		fprintf( stdout, "\n|-------------------------------------------|\n" );
+		fprintf( stdout, "| There is no syntactic and semantic error! |\n" );
+		fprintf( stdout, "|-------------------------------------------|\n" );
+	}
+}
 /*
 void init_funcOption(){
     funcOption.isDeclare = false;
